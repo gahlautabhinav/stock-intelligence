@@ -1,9 +1,36 @@
-# Agent prompts contain credentials — keep local only
+# Agent prompts contain credentials — never commit these
 agents/
 
-# Plan files
+# Local plan files
 plan.md
+*.plan.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+.npm
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Env files
+.env
+.env.*
+*.env
