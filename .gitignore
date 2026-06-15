@@ -1,0 +1,9 @@
+# Agent prompts contain credentials — keep local only
+agents/
+
+# Plan files
+plan.md
+
+# OS
+.DS_Store
+Thumbs.db
