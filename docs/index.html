@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Intelligence PA</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span>📈</span>
+        <span class="logo-text">Stock Intelligence PA</span>
+      </div>
+      <div class="header-meta">
+        <span class="badge" id="marketStatus"></span>
+        <span class="refresh-hint" id="lastRefresh"></span>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="today">Today</button>
+      <button class="tab" data-tab="history">History</button>
+      <button class="tab" data-tab="stats">Stats</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="tab-today"   class="tab-content active"></div>
+    <div id="tab-history" class="tab-content"></div>
+    <div id="tab-stats"   class="tab-content"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
