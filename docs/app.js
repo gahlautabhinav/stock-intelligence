@@ -6,6 +6,7 @@ const REFRESH_MS  = 5 * 60 * 1000;
 
 // ── State ────────────────────────────────────────────────────
 let briefings = [];
+const _charts  = {};
 
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -35,6 +36,7 @@ function setupTheme() {
   btn && btn.addEventListener('click', () => {
     const cur = html.getAttribute('data-theme');
     apply(cur === 'dark' ? 'light' : 'dark');
+    if (briefings.length) renderCharts();
   });
 }
 
@@ -69,6 +71,7 @@ function render() {
   renderToday();
   renderHistory();
   renderStats();
+  renderCharts();
 }
 
 // ── TODAY ────────────────────────────────────────────────────
@@ -246,6 +249,14 @@ function renderStats() {
         <tbody>${stockRows}</tbody>
       </table>
     ` : `<div class="empty">Stats populate after end-of-day data arrives.</div>`}
+
+    <hr class="section-rule">
+    <div class="eyebrow">Crude Oil — Morning Price ($/bbl)</div>
+    <div id="chart-crude" class="chart-box"></div>
+
+    <hr class="section-rule">
+    <div class="eyebrow">Daily Avg Pick Return (%)</div>
+    <div id="chart-picks-perf" class="chart-box"></div>
   `;
 }
 
@@ -423,6 +434,84 @@ function renderRisks(risks) {
       ${risks.map(r => `<div class="risk-item">${r}</div>`).join('')}
     </div>
   `;
+}
+
+// ── Charts ────────────────────────────────────────────────────
+function chartTheme() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark'
+    || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  return {
+    bg:     dark ? '#111111' : '#ffffff',
+    text:   dark ? '#8a8a8a' : '#757575',
+    grid:   dark ? '#2c2c2c' : '#e0e0e0',
+    border: dark ? '#2c2c2c' : '#e0e0e0',
+    up:     dark ? '#22c55e' : '#0a6e3f',
+    dn:     dark ? '#f87171' : '#b91c1c',
+    accent: '#f59e0b',
+  };
+}
+
+function makeChart(id, height = 180) {
+  const el = document.getElementById(id);
+  if (!el || typeof LightweightCharts === 'undefined') return null;
+  if (_charts[id]) { try { _charts[id].remove(); } catch(_) {} delete _charts[id]; }
+  const t = chartTheme();
+  const c = LightweightCharts.createChart(el, {
+    autoSize: true,
+    height,
+    layout:          { background: { color: t.bg }, textColor: t.text, fontFamily: 'Inter, sans-serif', fontSize: 11 },
+    grid:            { vertLines: { color: t.grid }, horzLines: { color: t.grid } },
+    timeScale:       { borderColor: t.border, timeVisible: true },
+    rightPriceScale: { borderColor: t.border },
+    handleScroll:    false,
+    handleScale:     false,
+    crosshair:       { mode: LightweightCharts.CrosshairMode.Magnet },
+  });
+  _charts[id] = c;
+  return c;
+}
+
+function renderCharts() {
+  if (typeof LightweightCharts === 'undefined') return;
+  const t = chartTheme();
+
+  // ── Chart 1: Crude oil morning price ──────────────────────
+  const crudeData = briefings
+    .filter(b => b.snapshot?.crude_oil?.value != null)
+    .map(b => ({ time: b.date, value: b.snapshot.crude_oil.value }))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const crudeChart = makeChart('chart-crude');
+  if (crudeChart && crudeData.length) {
+    const s = crudeChart.addLineSeries({
+      color: t.accent,
+      lineWidth: 2,
+      crosshairMarkerVisible: true,
+      priceFormat: { type: 'custom', formatter: v => '$' + v.toFixed(2) },
+    });
+    s.setData(crudeData);
+    crudeChart.timeScale().fitContent();
+  }
+
+  // ── Chart 2: Daily avg pick return ────────────────────────
+  const byDate = {};
+  briefings.forEach(b => {
+    const done = (b.picks || []).filter(p => p.actual_pct_change != null);
+    if (done.length) byDate[b.date] = done.reduce((s, p) => s + p.actual_pct_change, 0) / done.length;
+  });
+
+  const perfData = Object.entries(byDate)
+    .map(([time, value]) => ({ time, value, color: value >= 0 ? t.up : t.dn }))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const perfChart = makeChart('chart-picks-perf');
+  if (perfChart && perfData.length) {
+    const s = perfChart.addHistogramSeries({
+      priceFormat: { type: 'custom', formatter: v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%' },
+    });
+    s.setData(perfData);
+    perfChart.timeScale().fitContent();
+  }
 }
 
 // ── Toggle news expand ────────────────────────────────────────
