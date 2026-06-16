@@ -841,6 +841,51 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   overflow: hidden;
 }
 
+.chart-metric-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  margin-top: var(--s8);
+}
+
+.chart-btn {
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 1px solid var(--hairline);
+  background: none;
+  color: var(--body);
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.chart-btn:hover  { color: var(--ink); border-color: var(--ink); }
+.chart-btn.active { color: var(--canvas); background: var(--ink); border-color: var(--ink); }
+
+/* ── Sector Heatmap ──────────────────────────────── */
+.heatmap-table-wrap { overflow-x: auto; margin-top: var(--s8); }
+
+.heatmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ff-ui);
+  font-size: 12px;
+}
+.heatmap-table th,
+.heatmap-table td { border: 1px solid var(--hairline); padding: 6px 8px; white-space: nowrap; }
+.heatmap-table thead th { background: var(--canvas-s); color: var(--body); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.hm-sector-col  { min-width: 160px; text-align: left; }
+.hm-date-col    { text-align: center; min-width: 52px; }
+.hm-sector-name { font-weight: 500; color: var(--ink-soft); }
+.hm-cell        { text-align: center; font-weight: 700; font-size: 11px; cursor: default; }
+.hm-empty       { color: var(--hairline); font-weight: 400; }
+.hm-bull        { background: var(--up-bg);   color: var(--up); }
+.hm-bear        { background: var(--dn-bg);   color: var(--dn); }
+.hm-neut        { background: var(--canvas-s); color: var(--body); }
+
 /* ── Dark Mode ───────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {

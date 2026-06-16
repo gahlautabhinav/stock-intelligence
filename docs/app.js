@@ -238,25 +238,29 @@ function renderStats() {
       <hr class="section-rule">
       <div class="eyebrow">Per-Stock Breakdown</div>
       <table class="stock-stats-table">
-        <thead>
-          <tr>
-            <th>Stock</th>
-            <th>Times Picked</th>
-            <th>Win Rate</th>
-            <th>Avg Move</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Stock</th><th>Times Picked</th><th>Win Rate</th><th>Avg Move</th></tr></thead>
         <tbody>${stockRows}</tbody>
       </table>
     ` : `<div class="empty">Stats populate after end-of-day data arrives.</div>`}
 
     <hr class="section-rule">
-    <div class="eyebrow">Crude Oil — Morning Price ($/bbl)</div>
-    <div id="chart-crude" class="chart-box"></div>
+    <div class="eyebrow">Market Snapshot Trend</div>
+    <div class="chart-metric-btns" id="metricBtns">
+      <button class="chart-btn active" data-metric="crude_oil">Crude Oil</button>
+      <button class="chart-btn" data-metric="sp500">S&amp;P 500</button>
+      <button class="chart-btn" data-metric="gold">Gold</button>
+      <button class="chart-btn" data-metric="usd_inr">USD/INR</button>
+      <button class="chart-btn" data-metric="gift_nifty">GIFT Nifty</button>
+    </div>
+    <div id="chart-snapshot-trend" class="chart-box"></div>
 
     <hr class="section-rule">
     <div class="eyebrow">Daily Avg Pick Return (%)</div>
     <div id="chart-picks-perf" class="chart-box"></div>
+
+    <hr class="section-rule">
+    <div class="eyebrow">Sector Outlook Tracker</div>
+    <div id="sector-heatmap" class="sector-heatmap-wrap"></div>
   `;
 }
 
@@ -437,6 +441,16 @@ function renderRisks(risks) {
 }
 
 // ── Charts ────────────────────────────────────────────────────
+let _activeMetric = 'crude_oil';
+
+const METRICS = {
+  crude_oil:  { label: 'Crude Oil',  key: 'crude_oil',  color: '#f59e0b', fmt: v => '$' + v.toFixed(2) },
+  sp500:      { label: 'S&P 500',    key: 'sp500',       color: '#3b82f6', fmt: v => v.toLocaleString('en-US') },
+  gold:       { label: 'Gold',       key: 'gold',        color: '#a855f7', fmt: v => '$' + v.toLocaleString('en-US') },
+  usd_inr:    { label: 'USD/INR',    key: 'usd_inr',     color: '#06b6d4', fmt: v => '₹' + v.toFixed(2) },
+  gift_nifty: { label: 'GIFT Nifty', key: 'gift_nifty',  color: '#ec4899', fmt: v => v.toLocaleString('en-IN') },
+};
+
 function chartTheme() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark'
     || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -447,7 +461,6 @@ function chartTheme() {
     border: dark ? '#2c2c2c' : '#e0e0e0',
     up:     dark ? '#22c55e' : '#0a6e3f',
     dn:     dark ? '#f87171' : '#b91c1c',
-    accent: '#f59e0b',
   };
 }
 
@@ -461,7 +474,7 @@ function makeChart(id, height = 180) {
     height,
     layout:          { background: { color: t.bg }, textColor: t.text, fontFamily: 'Inter, sans-serif', fontSize: 11 },
     grid:            { vertLines: { color: t.grid }, horzLines: { color: t.grid } },
-    timeScale:       { borderColor: t.border, timeVisible: true },
+    timeScale:       { borderColor: t.border, timeVisible: false },
     rightPriceScale: { borderColor: t.border },
     handleScroll:    false,
     handleScale:     false,
@@ -471,35 +484,54 @@ function makeChart(id, height = 180) {
   return c;
 }
 
+function renderSnapshotChart(metric) {
+  const m = METRICS[metric] || METRICS.crude_oil;
+  const data = briefings
+    .filter(b => b.snapshot?.[m.key]?.value != null)
+    .map(b => ({ time: b.date, value: b.snapshot[m.key].value }))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const chart = makeChart('chart-snapshot-trend');
+  if (!chart) return;
+  if (!data.length) { chart.remove(); delete _charts['chart-snapshot-trend']; return; }
+
+  const s = chart.addLineSeries({
+    color: m.color,
+    lineWidth: 2,
+    crosshairMarkerVisible: true,
+    lastValueVisible: true,
+    priceFormat: { type: 'custom', formatter: m.fmt },
+  });
+  s.setData(data);
+  chart.timeScale().fitContent();
+}
+
 function renderCharts() {
   if (typeof LightweightCharts === 'undefined') return;
   const t = chartTheme();
 
-  // ── Chart 1: Crude oil morning price ──────────────────────
-  const crudeData = briefings
-    .filter(b => b.snapshot?.crude_oil?.value != null)
-    .map(b => ({ time: b.date, value: b.snapshot.crude_oil.value }))
-    .sort((a, b) => a.time.localeCompare(b.time));
+  // ── Snapshot trend (selected metric) ──────────────────────
+  renderSnapshotChart(_activeMetric);
 
-  const crudeChart = makeChart('chart-crude');
-  if (crudeChart && crudeData.length) {
-    const s = crudeChart.addLineSeries({
-      color: t.accent,
-      lineWidth: 2,
-      crosshairMarkerVisible: true,
-      priceFormat: { type: 'custom', formatter: v => '$' + v.toFixed(2) },
+  // Wire up metric selector buttons
+  const btnsEl = document.getElementById('metricBtns');
+  if (btnsEl) {
+    btnsEl.querySelectorAll('.chart-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btnsEl.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        _activeMetric = btn.dataset.metric;
+        renderSnapshotChart(_activeMetric);
+      });
     });
-    s.setData(crudeData);
-    crudeChart.timeScale().fitContent();
   }
 
-  // ── Chart 2: Daily avg pick return ────────────────────────
+  // ── Daily avg pick return ──────────────────────────────────
   const byDate = {};
   briefings.forEach(b => {
     const done = (b.picks || []).filter(p => p.actual_pct_change != null);
     if (done.length) byDate[b.date] = done.reduce((s, p) => s + p.actual_pct_change, 0) / done.length;
   });
-
   const perfData = Object.entries(byDate)
     .map(([time, value]) => ({ time, value, color: value >= 0 ? t.up : t.dn }))
     .sort((a, b) => a.time.localeCompare(b.time));
@@ -512,6 +544,66 @@ function renderCharts() {
     s.setData(perfData);
     perfChart.timeScale().fitContent();
   }
+
+  // ── Sector outcome heatmap (CSS, not LightweightCharts) ───
+  renderSectorHeatmap();
+}
+
+function renderSectorHeatmap() {
+  const el = document.getElementById('sector-heatmap');
+  if (!el) return;
+
+  // Collect all unique sectors across all briefings
+  const allSectors = [...new Set(
+    briefings.flatMap(b => (b.sector_outlook || []).map(s => s.sector))
+  )].sort();
+
+  const dates = briefings
+    .map(b => b.date)
+    .sort((a, b) => a.localeCompare(b));
+
+  if (!allSectors.length || !dates.length) {
+    el.innerHTML = '<div class="empty">Sector data accumulates from daily briefings.</div>';
+    return;
+  }
+
+  // Build lookup: sectorOutlooks[date][sector] = outlook
+  const lookup = {};
+  briefings.forEach(b => {
+    lookup[b.date] = {};
+    (b.sector_outlook || []).forEach(s => { lookup[b.date][s.sector] = s.outlook; });
+  });
+
+  const shortDate = d => {
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  };
+
+  el.innerHTML = `
+    <div class="heatmap-table-wrap">
+      <table class="heatmap-table">
+        <thead>
+          <tr>
+            <th class="hm-sector-col">Sector</th>
+            ${dates.map(d => `<th class="hm-date-col">${shortDate(d)}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${allSectors.map(sector => `
+            <tr>
+              <td class="hm-sector-name">${sector}</td>
+              ${dates.map(d => {
+                const outlook = lookup[d]?.[sector];
+                if (!outlook) return `<td class="hm-cell hm-empty">—</td>`;
+                const cls = outlook === 'BULLISH' ? 'hm-bull' : outlook === 'BEARISH' ? 'hm-bear' : 'hm-neut';
+                return `<td class="hm-cell ${cls}" title="${sector} — ${d}: ${outlook}">${outlook[0]}</td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 // ── Toggle news expand ────────────────────────────────────────
