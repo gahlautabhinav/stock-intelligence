@@ -10,17 +10,40 @@ let briefings = [];
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
+  setupTheme();
   loadData();
   setInterval(loadData, REFRESH_MS);
   updateMarketStatus();
   setInterval(updateMarketStatus, 60_000);
 });
 
+// ── Theme ─────────────────────────────────────────────────────
+function setupTheme() {
+  const saved = localStorage.getItem('theme');
+  const html  = document.documentElement;
+  const btn   = document.getElementById('themeToggle');
+  const lbl   = document.getElementById('themeLabel');
+
+  function apply(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    lbl.textContent = theme === 'dark' ? 'Light' : 'Dark';
+  }
+
+  if (saved) apply(saved);
+
+  btn && btn.addEventListener('click', () => {
+    const cur = html.getAttribute('data-theme');
+    apply(cur === 'dark' ? 'light' : 'dark');
+  });
+}
+
 // ── Data ─────────────────────────────────────────────────────
 async function loadData() {
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
-    briefings = await res.json();
+    const parsed = await res.json();
+    briefings = Array.isArray(parsed) ? parsed : [parsed];
     briefings.sort((a, b) => new Date(b.date) - new Date(a.date));
     render();
     document.getElementById('lastRefresh').textContent = 'Updated ' + fmtTime(new Date());

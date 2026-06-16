@@ -826,3 +826,74 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+/* ── Dark Mode ───────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:      #f0f0f0;
+    --ink-soft: #d8d8d8;
+    --body:     #8a8a8a;
+    --hairline: #2c2c2c;
+    --canvas:   #111111;
+    --canvas-s: #1c1c1c;
+    --link:     #57a9d9;
+    --up:       #22c55e;
+    --up-bg:    #052e16;
+    --dn:       #f87171;
+    --dn-bg:    #2d0a0a;
+    --warn:     #fbbf24;
+    --warn-bg:  #1c1200;
+  }
+}
+
+[data-theme="dark"] {
+  --ink:      #f0f0f0;
+  --ink-soft: #d8d8d8;
+  --body:     #8a8a8a;
+  --hairline: #2c2c2c;
+  --canvas:   #111111;
+  --canvas-s: #1c1c1c;
+  --link:     #57a9d9;
+  --up:       #22c55e;
+  --up-bg:    #052e16;
+  --dn:       #f87171;
+  --dn-bg:    #2d0a0a;
+  --warn:     #fbbf24;
+  --warn-bg:  #1c1200;
+}
+
+[data-theme="light"] {
+  --ink:      #000000;
+  --ink-soft: #1a1a1a;
+  --body:     #757575;
+  --hairline: #e0e0e0;
+  --canvas:   #ffffff;
+  --canvas-s: #f5f5f5;
+  --link:     #057dbc;
+  --up:       #0a6e3f;
+  --up-bg:    #f0faf5;
+  --dn:       #b91c1c;
+  --dn-bg:    #fef2f2;
+  --warn:     #92400e;
+  --warn-bg:  #fffbeb;
+}
+
+/* ── Dark Mode Toggle Button ─────────────────────── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-toggle:hover { border-color: var(--ink); }
+.theme-toggle svg { width: 14px; height: 14px; fill: currentColor; }
