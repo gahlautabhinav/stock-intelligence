@@ -38,9 +38,13 @@ body {
   background: var(--canvas);
   color: var(--ink);
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+
+main { flex: 1; }
 
 /* Tabular numbers for all financial data */
 .num,
@@ -725,10 +729,11 @@ main {
 
 /* ── Footer ──────────────────────────────────────── */
 .site-footer {
-  background: var(--ink);
-  color: #fff;
+  background: #000000;
+  color: #ffffff;
   padding: var(--s24);
-  margin-top: var(--s48);
+  margin-top: auto;
+  border-top: 1px solid #222222;
 }
 .footer-inner {
   max-width: 1000px;
