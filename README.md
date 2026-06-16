@@ -2,74 +2,85 @@
 
 Pre-market intelligence system for NSE intraday trading. Delivers macro news analysis, sector-correlation picks, and end-of-day tracking automatically every weekday.
 
-## What It Does
-
-| Time | Action |
-|------|--------|
-| **8:00 AM IST** | Morning agent wakes up, fetches commodity prices + news, analyzes sector impact, sends 2 Telegram messages with top picks |
-| **3:45 PM IST** | Evening agent fetches actual NSE closing prices for all picks, logs results, sends EOD accuracy recap |
-| **Always** | Dashboard auto-updates from GitHub JSON — view history, stats, accuracy |
-
 ## Dashboard
 
 **https://gahlautabhinav.github.io/stock-intelligence**
 
-- Today's briefing with full news reasoning
-- Click any news card → see "what happened / why it matters" 
-- History tab: every past briefing
-- Stats tab: per-stock win rate, accuracy over time
+Editorial intelligence-briefing design (Wired-inspired):
+- Morning brief with full news reasoning — click any story to expand analysis
+- Sector outlook grid (BULLISH / BEARISH / NEUTRAL per sector)
+- Pick cards with watch zone, stop loss, target, and actual outcome once market closes
+- History tab: every past briefing, expandable
+- Performance tab: per-stock win rate and accuracy over time
+
+## Schedule
+
+| Time | Action |
+|------|--------|
+| **8:00 AM IST** | Morning agent gathers macro data, analyzes sector correlations, sends 2 Telegram messages, logs to GitHub |
+| **3:45 PM IST** | Evening agent fetches NSE closing prices, logs actuals, sends EOD accuracy recap |
+| **Always** | Dashboard auto-refreshes every 5 min from GitHub JSON |
 
 ## How It Works
 
 ```
-Yahoo Finance (commodity prices)  ──┐
-ET Markets RSS (India news)        ─┤
-WebSearch (FII/DII, GIFT Nifty)   ─┤──► Morning Agent ──► Telegram (2 msgs)
-WebSearch (US markets, global)    ─┘                  └──► GitHub JSON
+Yahoo Finance (commodities + indices)  ──┐
+ET Markets RSS (India business news)    ─┤
+WebSearch (FII/DII, GIFT Nifty, macro) ─┤──► Morning Agent ──► Telegram (2 msgs)
+                                         └──────────────────► GitHub JSON
 
-NSE closing prices (Yahoo Finance) ──► Evening Agent ──► Telegram (EOD recap)
-                                                     └──► GitHub JSON (actuals)
+NSE closing prices (Yahoo Finance .NS) ──► Evening Agent ──► Telegram (EOD recap)
+                                                         └──► GitHub JSON (actuals)
 
-GitHub JSON ──► Dashboard (GitHub Pages) ──► Live in browser / phone
+GitHub JSON ──► Dashboard (GitHub Pages) ──► Browser / phone
 ```
 
-## Sector Correlation Rules
-
-The agents use these correlations to find picks:
+## Sector Correlations
 
 | Event | Bullish | Bearish |
 |-------|---------|---------|
-| Crude oil falls | INDIGO, SPICEJET, ASIANPAINT, MRF | HPCL, BPCL, ONGC |
-| Crude oil rises | HPCL, BPCL, ONGC | INDIGO, SPICEJET |
-| Dollar strengthens | TCS, INFY, WIPRO, HCLTECH, SUNPHARMA | — |
-| Dollar weakens | — | TCS, INFY, WIPRO |
-| US markets up | Broad market bullish | — |
-| FII buying | Large caps, Nifty 50 | — |
-| RBI rate cut | HDFCBANK, ICICIBANK, DLF, GODREJPROP | — |
-| Gold rises | MUTHOOTFIN, MANAPPURAM | — |
+| Crude oil falls | Airlines, Paints, Tyres, Logistics, FMCG | OMCs, Upstream Oil |
+| Crude oil rises | OMCs (HPCL, BPCL), Upstream (ONGC) | Airlines, Paints, Tyres |
+| Dollar strengthens | IT (TCS, INFY, WIPRO), Pharma exporters | — |
+| Dollar weakens | — | IT, Pharma exporters |
+| US markets up | Broad market, Banking (FII flows) | — |
+| US Nasdaq +1%+ | Indian IT (valuation re-rating) | — |
+| China data strong | Metals (TATASTEEL, HINDALCO, VEDL) | — |
+| RBI rate cut | Banks, NBFCs, Real Estate, Auto | — |
+| Gold rises | MUTHOOTFIN, MANAPPURAM, TITAN | Broad market (risk-off) |
+| FII buying >500 Cr | Large caps, Nifty 50 | — |
+| Infra capex news | L&T, NTPC, IRCON, Capital Goods | — |
+| Defense orders | HAL, BEL, BEML, COCHINSHIP | — |
+| Good monsoon | FMCG rural, Fertilizers, Tractors | — |
 
 ## Repository Structure
 
 ```
 stock-intelligence/
 ├── data/
-│   └── briefings.json      ← append-only log of all briefings + actuals
-├── docs/                   ← GitHub Pages dashboard
+│   └── briefings.json      <- append-only log of all briefings + actuals
+├── docs/                   <- GitHub Pages dashboard
 │   ├── index.html
-│   ├── app.js
-│   └── style.css
+│   ├── style.css           <- Wired editorial design system
+│   └── app.js
+├── .github/
+│   └── workflows/
+│       └── pages.yml       <- GitHub Pages deploy with correct permissions
 ├── .gitignore
 └── README.md
 
-[NOT in repo — local only, contains credentials]
+[NOT in repo -- local only, contain credentials]
 agents/
 ├── morning-agent-prompt.md
 └── evening-agent-prompt.md
+
+design-files/
+└── DESIGN-wired.md
 ```
 
-## Scheduled Agents
+## Cloud Agents
 
-Managed via Claude Code cloud routines:
+Managed via Claude Code routines (run on Anthropic cloud -- laptop does not need to be open):
 - **Morning:** https://claude.ai/code/routines/trig_014yZyW2H8Mpq2GQeMsG5SDy
 - **Evening:** https://claude.ai/code/routines/trig_01FXHWTMHqss4oNU6b9KGJ1D
 
@@ -80,20 +91,39 @@ Each entry in `briefings.json`:
 ```json
 {
   "date": "2026-06-16",
-  "snapshot": { "crude_oil": { "value": 71.2, "change_pct": -2.3 }, "..." },
-  "fii": { "net_cr": 1240, "direction": "buying" },
-  "news": [{ "headline": "...", "what_happened": "...", "why_it_matters": "...", "affected_stocks": [...] }],
-  "sector_outlook": [{ "sector": "Airlines", "outlook": "BULLISH", "reason": "Crude -2.3%" }],
+  "day": "Monday",
+  "snapshot": {
+    "gift_nifty": { "value": 23930, "change_pct": 0.31 },
+    "sp500":      { "value": 7554,  "change_pct": 1.65 },
+    "crude_oil":  { "value": 81.14, "change_pct": 0.48 },
+    "usd_inr":    { "value": 94.75, "change_pct": -0.38 },
+    "gold":       { "value": 4309,  "change_pct": -0.3 }
+  },
+  "fii": { "net_cr": 200, "direction": "buying" },
+  "news": [{
+    "headline": "...",
+    "what_happened": "...",
+    "why_it_matters": "...",
+    "affected_stocks": ["INDIGO", "ASIANPAINT"],
+    "sentiment": "bullish"
+  }],
+  "sector_outlook": [{ "sector": "Airlines", "outlook": "BULLISH", "reason": "Crude -5%" }],
   "picks": [{
     "symbol": "INDIGO",
-    "catalyst": "...", "logic": "...",
-    "watch_zone": { "low": 2800, "high": 2820 },
-    "target_pct": 3.5, "stop_loss": 2760,
-    "actual_open": 2815, "actual_close": 2906, "actual_pct_change": 3.23, "hit_target": true
+    "catalyst": "...",
+    "logic": "...",
+    "watch_zone": { "low": 4850, "high": 4920 },
+    "target_pct": 2.5,
+    "stop_loss": 4800,
+    "actual_open": 4905,
+    "actual_close": 4880,
+    "actual_pct_change": -0.5,
+    "hit_target": false
   }],
   "overall_mood": "BULLISH",
+  "risks": ["..."],
   "eod_updated": true,
-  "eod_summary": "INDIGO +3.2% ✅"
+  "eod_summary": "INDIGO -0.5%"
 }
 ```
 
@@ -105,7 +135,7 @@ Everything free:
 - GitHub repo + Pages: free
 - Telegram bot: free
 
-**Total extra cost: ₹0/month**
+**Total extra cost: Rs 0/month**
 
 ---
 

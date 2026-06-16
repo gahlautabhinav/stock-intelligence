@@ -1,5 +1,8 @@
 # Agent prompts contain credentials — never commit these
 agents/
+design-files/
+*-resume.txt
+*-bot.txt
 
 # Local plan files
 plan.md

@@ -4,25 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stock Intelligence PA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <span>📈</span>
-        <span class="logo-text">Stock Intelligence PA</span>
-      </div>
-      <div class="header-meta">
-        <span class="badge" id="marketStatus"></span>
-        <span class="refresh-hint" id="lastRefresh"></span>
+  <header class="masthead">
+    <div class="masthead-top">
+      <span class="wordmark">Stock Intelligence PA</span>
+      <div class="masthead-meta">
+        <span class="market-badge" id="marketStatus"></span>
+        <span class="refresh-time" id="lastRefresh"></span>
       </div>
     </div>
     <nav class="tabs">
       <button class="tab active" data-tab="today">Today</button>
       <button class="tab" data-tab="history">History</button>
-      <button class="tab" data-tab="stats">Stats</button>
+      <button class="tab" data-tab="stats">Performance</button>
     </nav>
   </header>
 
@@ -31,6 +31,13 @@
     <div id="tab-history" class="tab-content"></div>
     <div id="tab-stats"   class="tab-content"></div>
   </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="wordmark" style="color:#fff">Stock Intelligence PA</span>
+      <span class="footer-note">AI analysis — Not financial advice. Auto-updates every 5 min.</span>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>
