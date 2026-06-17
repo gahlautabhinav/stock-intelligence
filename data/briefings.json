@@ -374,10 +374,10 @@
         },
         "target_pct": 2.5,
         "stop_loss": 13650.0,
-        "actual_open": null,
-        "actual_close": null,
-        "actual_pct_change": null,
-        "hit_target": null
+        "actual_open": 13550.0,
+        "actual_close": 13598.0,
+        "actual_pct_change": 0.35,
+        "hit_target": false
       }
     ],
     "overall_mood": "CAUTIOUSLY BULLISH",
@@ -388,7 +388,7 @@
       "GIFT Nifty +0.20% suggests flat open — if it slips to gap-down at open, momentum reverses quickly in an already cautious institutional environment",
       "Fed Chair Warsh uncertainty: if first FOMC signals hawkishness, DXY strengthens, INR weakens further, FII selling accelerates across EM"
     ],
-    "eod_updated": false,
-    "eod_summary": null
+    "eod_updated": true,
+    "eod_summary": "APOLLOTYRE: N/A (data unavailable)  MARUTI: +0.35% ❌"
   }
 ]
