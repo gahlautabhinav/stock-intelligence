@@ -3,6 +3,7 @@ agents/
 design-files/
 *-resume.txt
 *-bot.txt
+bug-screenshots/
 
 # Local plan files
 plan.md
