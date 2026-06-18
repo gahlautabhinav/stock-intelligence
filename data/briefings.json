@@ -32,7 +32,7 @@
     },
     "news": [
       {
-        "headline": "US-Iran Peace Deal Signed — Crude Oil Plunged 5%+ to ~$80/bbl on June 15",
+        "headline": "US-Iran Peace Deal Signed \u2014 Crude Oil Plunged 5%+ to ~$80/bbl on June 15",
         "what_happened": "The US and Iran reached an agreement ending their 107-day conflict, committing to reopen the Strait of Hormuz. Crude oil crashed 5%+ from above $85, settling near $80.53 on June 15. Crude is recovering slightly to $81.14 on June 16 AM.",
         "why_it_matters": "India is a major oil importer. Lower crude reduces the import bill, eases inflation, strengthens the rupee, and directly lowers input costs for airlines, paint, and tyre sectors. This is the single biggest macro positive for India in months.",
         "affected_stocks": [
@@ -47,7 +47,7 @@
         "sentiment": "bullish"
       },
       {
-        "headline": "S&P 500 +1.65%, Nasdaq +3.07% on June 15 — Wall Street Surges on Iran Deal",
+        "headline": "S&P 500 +1.65%, Nasdaq +3.07% on June 15 \u2014 Wall Street Surges on Iran Deal",
         "what_happened": "US markets posted their biggest single-day gain in months. S&P 500 closed at 7,554 (+1.65%), Dow added +0.92%, Nasdaq surged +3.07% led by technology stocks reacting to lower energy costs and reduced geopolitical risk.",
         "why_it_matters": "Strong US close provides a positive global cue for Indian markets. Risk-on environment globally supports FPI flows into India. Nifty has bullish bias entering today, though expiry day adds caution.",
         "affected_stocks": [
@@ -58,7 +58,7 @@
         "sentiment": "bullish"
       },
       {
-        "headline": "Rupee Strengthened to 94.75 vs USD — DXY Slips to 99.55 (-0.28%)",
+        "headline": "Rupee Strengthened to 94.75 vs USD \u2014 DXY Slips to 99.55 (-0.28%)",
         "what_happened": "The Indian rupee rallied sharply as the Iran deal improved India macro outlook. USD/INR fell to ~94.75 (rupee at multi-week highs). Dollar Index (DXY) softened to 99.55, down 0.28%.",
         "why_it_matters": "A stronger rupee is negative for USD-earning IT and pharma exporters, reducing INR value of overseas revenues. However it signals strong macro positioning for India and reduces imported inflation pressure.",
         "affected_stocks": [
@@ -72,7 +72,7 @@
         "sentiment": "bearish"
       },
       {
-        "headline": "Nifty Weekly Options Expiry Today — Upper Wick Caution at 24,000",
+        "headline": "Nifty Weekly Options Expiry Today \u2014 Upper Wick Caution at 24,000",
         "what_happened": "Nifty closed at 23,856 (+0.95%) on June 15 but left a large upper wick, closing 155 points below the day high of 24,011. June futures trade at 23,930 (73pt premium over spot). Today is Nifty weekly options expiry.",
         "why_it_matters": "Expiry days bring elevated intraday volatility and whipsaw risk. Resistance cluster at 24,000 may cap upside early. Avoid chasing gap-up opens aggressively; wait for first 15-30 min price discovery.",
         "affected_stocks": [
@@ -85,22 +85,22 @@
       {
         "sector": "Airlines",
         "outlook": "BULLISH",
-        "reason": "Crude -5%+ → jet fuel cost savings, ~40% of airline OPEX"
+        "reason": "Crude -5%+ \u2192 jet fuel cost savings, ~40% of airline OPEX"
       },
       {
         "sector": "Paints & Chemicals",
         "outlook": "BULLISH",
-        "reason": "Crude -5%+ → raw material cost reduction for Asian Paints, Berger"
+        "reason": "Crude -5%+ \u2192 raw material cost reduction for Asian Paints, Berger"
       },
       {
         "sector": "Tyres",
         "outlook": "BULLISH",
-        "reason": "Crude -5%+ → petroleum-based input savings for MRF, Apollo, CEAT"
+        "reason": "Crude -5%+ \u2192 petroleum-based input savings for MRF, Apollo, CEAT"
       },
       {
         "sector": "Oil & Gas (PSU)",
         "outlook": "BEARISH",
-        "reason": "Lower crude → reduced inventory gains and marketing margins for HPCL, BPCL, ONGC"
+        "reason": "Lower crude \u2192 reduced inventory gains and marketing margins for HPCL, BPCL, ONGC"
       },
       {
         "sector": "IT Services",
@@ -110,7 +110,7 @@
       {
         "sector": "Broad Market / Banking",
         "outlook": "BULLISH",
-        "reason": "S&P +1.65%, crude -5%, macro improvement — risk-on globally supports Nifty"
+        "reason": "S&P +1.65%, crude -5%, macro improvement \u2014 risk-on globally supports Nifty"
       }
     ],
     "picks": [
@@ -131,7 +131,7 @@
       },
       {
         "symbol": "ASIANPAINT",
-        "catalyst": "Crude -5%+ → significant raw material cost relief",
+        "catalyst": "Crude -5%+ \u2192 significant raw material cost relief",
         "logic": "Crude derivatives (monomers, solvents, titanium dioxide feedstocks) comprise 40-50% of paint manufacturing costs. A sustained crude fall directly expands gross margins. Consumer demand intact post Iran-deal; margin recovery likely.",
         "watch_zone": {
           "low": 2400,
@@ -146,7 +146,7 @@
       },
       {
         "symbol": "APOLLOTYRE",
-        "catalyst": "Crude -5%+ → petroleum-based raw material cost reduction",
+        "catalyst": "Crude -5%+ \u2192 petroleum-based raw material cost reduction",
         "logic": "Synthetic rubber, carbon black, and other petroleum-derived inputs form 60-70% of tyre raw material costs. Lower crude = direct EBITDA margin expansion. Auto sector sentiment also improves as fuel prices ease for vehicle owners.",
         "watch_zone": {
           "low": 570,
@@ -162,14 +162,14 @@
     ],
     "overall_mood": "BULLISH",
     "risks": [
-      "Weekly Nifty options expiry today — elevated intraday volatility, avoid chasing gap-up opens blindly",
+      "Weekly Nifty options expiry today \u2014 elevated intraday volatility, avoid chasing gap-up opens blindly",
       "Nifty left upper wick on June 15; resistance at 24,000 may cap early upside",
-      "Crude recovering +0.48% on June 16 AM — if reversal accelerates, crude-beneficiary thesis weakens",
-      "FII bought only ₹200 Cr cash on June 15 while selling Nifty futures — institutional conviction not fully committed",
-      "Iran deal implementation risk — Strait of Hormuz reopening could face delays, reversing crude move"
+      "Crude recovering +0.48% on June 16 AM \u2014 if reversal accelerates, crude-beneficiary thesis weakens",
+      "FII bought only \u20b9200 Cr cash on June 15 while selling Nifty futures \u2014 institutional conviction not fully committed",
+      "Iran deal implementation risk \u2014 Strait of Hormuz reopening could face delays, reversing crude move"
     ],
     "eod_updated": true,
-    "eod_summary": "INDIGO -0.5% ❌  ASIANPAINT +0.26% ❌  APOLLOTYRE +0.06% ❌"
+    "eod_summary": "INDIGO -0.5% \u274c  ASIANPAINT +0.26% \u274c  APOLLOTYRE +0.06% \u274c"
   },
   {
     "id": "2026-06-17",
@@ -229,7 +229,7 @@
     },
     "news": [
       {
-        "headline": "WTI Crude Sustains Below $78 — Iran Deal Day 2, Structural Supply Premium Gone",
+        "headline": "WTI Crude Sustains Below $78 \u2014 Iran Deal Day 2, Structural Supply Premium Gone",
         "what_happened": "WTI crude fell >4% on June 16 to ~$77.80/bbl, with Brent near $79.80. Crude has now collapsed ~8-9% from above $85 in just two sessions since the US-Iran MOU signaling Strait of Hormuz reopening. The geopolitical risk premium is being fully unwound.",
         "why_it_matters": "India imports 85%+ of its oil. Sustained crude at $78 vs $85 last week saves ~$7-8 billion/year in import bill. CAD narrows, inflation eases, and input costs for airlines, tyres, paints, chemicals, and FMCG collapse. Day 2 of the decline means laggard stocks (those that underperformed on Day 1) are the primary opportunity.",
         "affected_stocks": [
@@ -250,7 +250,7 @@
       {
         "headline": "Dow Hits All-Time Record 52,000; Nasdaq -1.15% on BOJ Rate Hike + New Fed Chair Uncertainty",
         "what_happened": "A stark divergence in US markets on June 16: Dow surged past 52,000 (record high, +0.64%) while Nasdaq fell 1.15% and S&P 500 was barely flat (-0.08%). Bank of Japan rate hike strengthened the yen. New Fed Chairman Kevin Warsh held his first FOMC meeting, creating policy uncertainty. Tech stocks led the decline.",
-        "why_it_matters": "The Dow/Nasdaq divergence signals a rotation from growth (tech) to value/cyclicals. Indian IT stocks (TCS, INFY, WIPRO, HCLTECH) face direct Nasdaq correlation headwind. Conversely, India's domestic cyclicals — auto, banking, industrials — benefit from the Dow-bullish signal. FIIs may sell tech, rotate to HDFC/ICICI/auto.",
+        "why_it_matters": "The Dow/Nasdaq divergence signals a rotation from growth (tech) to value/cyclicals. Indian IT stocks (TCS, INFY, WIPRO, HCLTECH) face direct Nasdaq correlation headwind. Conversely, India's domestic cyclicals \u2014 auto, banking, industrials \u2014 benefit from the Dow-bullish signal. FIIs may sell tech, rotate to HDFC/ICICI/auto.",
         "affected_stocks": [
           "TCS",
           "INFY",
@@ -267,7 +267,7 @@
       {
         "headline": "FII Net Sold Rs 749 Cr on June 16 Even as Nifty Rose for 3rd Straight Day",
         "what_happened": "Despite Nifty closing at 23,989 (3rd consecutive positive session, Sensex +544 pts), FIIs were net sellers of Rs 749 Cr in cash markets on June 16. DII activity was minimal at Rs 0.06 Cr. The rally was driven by retail/domestic momentum, not institutional conviction.",
-        "why_it_matters": "FII selling even during a rising market suggests smart-money caution — likely driven by BOJ carry trade concerns (stronger yen = FII fund repatriation risk) and USD/INR weakening (rupee fell 0.25% on June 16). This limits how far large-caps can rally today. Watch FII data post-market for trend confirmation.",
+        "why_it_matters": "FII selling even during a rising market suggests smart-money caution \u2014 likely driven by BOJ carry trade concerns (stronger yen = FII fund repatriation risk) and USD/INR weakening (rupee fell 0.25% on June 16). This limits how far large-caps can rally today. Watch FII data post-market for trend confirmation.",
         "affected_stocks": [
           "HDFCBANK",
           "RELIANCE",
@@ -292,7 +292,7 @@
         "sentiment": "bullish"
       },
       {
-        "headline": "Hang Seng -1.17%; China PMI Barely at 50 — Metals Face Demand Headwinds",
+        "headline": "Hang Seng -1.17%; China PMI Barely at 50 \u2014 Metals Face Demand Headwinds",
         "what_happened": "Hang Seng fell to 24,552 (-1.17%) on Monday. China's May official manufacturing PMI was at 50.0 (barely expansion, weakest since Feb 2026), with export orders and employment both weakening.",
         "why_it_matters": "China is the world's largest consumer of steel, aluminium, and copper. Weak PMI and equity market decline signal softening industrial demand. Indian metal producers (TATASTEEL, JSWSTEEL, HINDALCO, SAIL) face a demand-side headwind and should be avoided in today's session.",
         "affected_stocks": [
@@ -310,7 +310,7 @@
       {
         "sector": "Tyres",
         "outlook": "BULLISH",
-        "reason": "WTI crude at $77.80 (-4.1% yesterday, -8-9% in 2 days). Petroleum inputs = 60-70% of tyre costs. APOLLOTYRE moved only +0.06% on June 16 despite the crude crash — clear laggard catchup play today."
+        "reason": "WTI crude at $77.80 (-4.1% yesterday, -8-9% in 2 days). Petroleum inputs = 60-70% of tyre costs. APOLLOTYRE moved only +0.06% on June 16 despite the crude crash \u2014 clear laggard catchup play today."
       },
       {
         "sector": "Auto OEM",
@@ -320,7 +320,7 @@
       {
         "sector": "Airlines",
         "outlook": "BULLISH",
-        "reason": "Jet fuel structurally cheaper. INDIGO had a volatile day June 16 (opened at 4905, closed at 4880 = -0.5%) — consolidation before next leg up expected. Better R/R for new entries now vs yesterday."
+        "reason": "Jet fuel structurally cheaper. INDIGO had a volatile day June 16 (opened at 4905, closed at 4880 = -0.5%) \u2014 consolidation before next leg up expected. Better R/R for new entries now vs yesterday."
       },
       {
         "sector": "IT Services",
@@ -351,8 +351,8 @@
     "picks": [
       {
         "symbol": "APOLLOTYRE",
-        "catalyst": "WTI crude sustained at $77.80 (-4.1% June 16); tyre sector laggard — stock moved only +0.06% on Day 1 of crude collapse",
-        "logic": "Petroleum-derived inputs (synthetic rubber, carbon black, process oils, naphtha) account for 60-70% of Apollo Tyres' raw material costs. With crude down ~8-9% in two days, quarterly EBITDA margins could expand 200-300 bps on a run-rate basis. The stock barely moved on June 16 (only +0.06% vs the magnitude of the catalyst) — a textbook Day 2 catchup trade. Apollo also has a recovering European business, adding upside to margin expansion.",
+        "catalyst": "WTI crude sustained at $77.80 (-4.1% June 16); tyre sector laggard \u2014 stock moved only +0.06% on Day 1 of crude collapse",
+        "logic": "Petroleum-derived inputs (synthetic rubber, carbon black, process oils, naphtha) account for 60-70% of Apollo Tyres' raw material costs. With crude down ~8-9% in two days, quarterly EBITDA margins could expand 200-300 bps on a run-rate basis. The stock barely moved on June 16 (only +0.06% vs the magnitude of the catalyst) \u2014 a textbook Day 2 catchup trade. Apollo also has a recovering European business, adding upside to margin expansion.",
         "watch_zone": {
           "low": 414.5,
           "high": 418.5
@@ -367,7 +367,7 @@
       {
         "symbol": "MARUTI",
         "catalyst": "Crude low + Dow record + domestic cyclical rotation; auto is the highest-conviction sector today",
-        "logic": "MARUTI benefits on three fronts: (1) Petroleum-derived polymer/rubber costs fall directly; (2) Lower petrol prices lift consumer vehicle purchase sentiment — auto loan demand picks up; (3) Dow at record = global value/cyclical preference, and MARUTI is India's premier domestic cyclical with lower FII ownership (less FII-selling pressure than index heavyweights). India GDP at 7.7% and rising exports (16%+ growth Apr-May 2026-27) support urban consumption. Structurally clean balance sheet with no debt.",
+        "logic": "MARUTI benefits on three fronts: (1) Petroleum-derived polymer/rubber costs fall directly; (2) Lower petrol prices lift consumer vehicle purchase sentiment \u2014 auto loan demand picks up; (3) Dow at record = global value/cyclical preference, and MARUTI is India's premier domestic cyclical with lower FII ownership (less FII-selling pressure than index heavyweights). India GDP at 7.7% and rising exports (16%+ growth Apr-May 2026-27) support urban consumption. Structurally clean balance sheet with no debt.",
         "watch_zone": {
           "low": 13753.0,
           "high": 13892.0
@@ -383,12 +383,231 @@
     "overall_mood": "CAUTIOUSLY BULLISH",
     "risks": [
       "Iran deal implementation risk: Strait of Hormuz reopening could face delays or political reversals, triggering a crude rebound and collapsing today's entire thesis",
-      "FII net selling (Rs 749 Cr June 16) during a rising market signals institutional caution — BOJ carry trade unwinding could accelerate FII outflows from India EMs",
+      "FII net selling (Rs 749 Cr June 16) during a rising market signals institutional caution \u2014 BOJ carry trade unwinding could accelerate FII outflows from India EMs",
       "Nifty at 23,989 approaching 24,000 psychological resistance; 3 consecutive up days increases profit-booking probability at open",
-      "GIFT Nifty +0.20% suggests flat open — if it slips to gap-down at open, momentum reverses quickly in an already cautious institutional environment",
+      "GIFT Nifty +0.20% suggests flat open \u2014 if it slips to gap-down at open, momentum reverses quickly in an already cautious institutional environment",
       "Fed Chair Warsh uncertainty: if first FOMC signals hawkishness, DXY strengthens, INR weakens further, FII selling accelerates across EM"
     ],
     "eod_updated": true,
-    "eod_summary": "APOLLOTYRE: N/A (data unavailable)  MARUTI: +0.35% ❌"
+    "eod_summary": "APOLLOTYRE: N/A (data unavailable)  MARUTI: +0.35% \u274c"
+  },
+  {
+    "id": "2026-06-18",
+    "date": "2026-06-18",
+    "day": "Thursday",
+    "generated_at": "2026-06-18T08:30:00+05:30",
+    "snapshot": {
+      "gift_nifty": {
+        "value": 24057.5,
+        "change_pct": 0.43
+      },
+      "nifty50_prev_close": 23955.5,
+      "sp500": {
+        "value": 7420.1,
+        "change_pct": -1.21
+      },
+      "nasdaq": {
+        "value": 26021.66,
+        "change_pct": -1.34
+      },
+      "dow": {
+        "value": 51492.55,
+        "change_pct": -0.98
+      },
+      "crude_oil_wti": {
+        "value": 76.59,
+        "change_pct": 0.71
+      },
+      "crude_oil_brent": {
+        "value": 78.57,
+        "change_pct": -0.5
+      },
+      "usd_inr": {
+        "value": 94.44,
+        "change_pct": -0.15
+      },
+      "gold": {
+        "value": 4351.13,
+        "change_pct": 0.8
+      },
+      "silver": {
+        "value": 70.94,
+        "change_pct": 0.89
+      },
+      "us_10y": {
+        "value": 4.47,
+        "change_pct": 0.05
+      },
+      "china_hsi": {
+        "value": 24494,
+        "change_pct": -1.4
+      }
+    },
+    "fii": {
+      "net_cr": -749.2,
+      "direction": "selling"
+    },
+    "dii": {
+      "net_cr": 0.1,
+      "direction": "buying"
+    },
+    "news": [
+      {
+        "headline": "Fed signals rate hike in 2026 \u2014 S&P -1.21%, Nasdaq -1.34%",
+        "what_happened": "Fed Chair Warsh held rates at 3.50-3.75% but 9 of 19 FOMC members pencil in at least one 2026 rate hike. PCE inflation revised to 3.6%. US 10Y yield hit 4.47%.",
+        "why_it_matters": "Hawkish Fed drives FII outflows from EMs. Rising bond yields pressure Indian banks, NBFCs, real estate. Risk-off globally hits Nifty blue chips with high FII ownership.",
+        "affected_stocks": [
+          "HDFCBANK",
+          "ICICIBANK",
+          "AXISBANK",
+          "TCS",
+          "INFY",
+          "WIPRO",
+          "DLF",
+          "BAJFINANCE"
+        ],
+        "sentiment": "bearish"
+      },
+      {
+        "headline": "Iran-US peace deal to be formally signed Friday in Switzerland",
+        "what_happened": "US-Iran interim framework agreed: Iran resumes oil exports, Strait of Hormuz reopens, Iran gets access to $300B economic program. Crude up +0.71% today on Trump's residual warning but deal signing is confirmed for Friday.",
+        "why_it_matters": "Iran oil supply returning + Hormuz reopening = significant crude price decline expected. India \u2014 world's 3rd-largest oil importer \u2014 benefits enormously (CAD narrows, INR stays strong, inflation eases). Airlines, paints, tyres are forward-looking beneficiaries.",
+        "affected_stocks": [
+          "INDIGO",
+          "SPICEJET",
+          "ASIANPAINT",
+          "APOLLOTYRE",
+          "MRF",
+          "MARUTI",
+          "HINDUNILVR"
+        ],
+        "sentiment": "bullish"
+      },
+      {
+        "headline": "Gold surges to $4,351/oz (+0.80%) \u2014 near all-time record high",
+        "what_happened": "Gold rose 0.80% to $4,351 driven by Fed inflation fears (PCE 3.6%) and residual Iran uncertainty. Silver up +0.89%.",
+        "why_it_matters": "Gold loan NBFCs see immediate benefit \u2014 higher gold price = higher collateral value = improved LTV safety, lower NPA risk, stronger loan growth. MUTHOOTFIN is the direct beneficiary.",
+        "affected_stocks": [
+          "MUTHOOTFIN",
+          "MANAPPURAM",
+          "TITAN"
+        ],
+        "sentiment": "bullish"
+      },
+      {
+        "headline": "RBI holds repo at 5.25%, trims GDP forecast to 6.6%",
+        "what_happened": "RBI MPC unanimously kept repo unchanged at 5.25% with neutral stance. GDP growth forecast cut to 6.6% for FY27.",
+        "why_it_matters": "No rate-cut catalyst for banks/NBFCs/real estate today. GDP downgrade signals growth caution \u2014 mild negative for domestic cyclicals.",
+        "affected_stocks": [
+          "HDFCBANK",
+          "BAJFINANCE",
+          "DLF",
+          "LICHSGFIN"
+        ],
+        "sentiment": "neutral"
+      },
+      {
+        "headline": "Rupee strengthens to 94.44 \u2014 1.5% appreciation in one week",
+        "what_happened": "USD/INR fell to 94.44 (from 95.88 on Jun 11), its strongest level in months, driven by Iran deal optimism reducing India's projected oil import bill.",
+        "why_it_matters": "BEARISH for IT exporters (TCS, INFY, WIPRO \u2014 USD revenues in INR shrink) and pharma exporters. BULLISH for airlines (dollar-denominated fuel and lease costs cheaper).",
+        "affected_stocks": [
+          "TCS",
+          "INFY",
+          "WIPRO",
+          "HCLTECH",
+          "SUNPHARMA",
+          "DRREDDY"
+        ],
+        "sentiment": "bearish"
+      }
+    ],
+    "sector_outlook": [
+      {
+        "sector": "Gold Loan NBFCs",
+        "outlook": "BULLISH",
+        "reason": "Gold at $4,351 (+0.80%) \u2014 record collateral values improve AUM quality and growth"
+      },
+      {
+        "sector": "IT Services",
+        "outlook": "BEARISH",
+        "reason": "Nasdaq -1.34% + Rupee 1.5% stronger \u2014 dual headwind on valuations & USD-INR realization"
+      },
+      {
+        "sector": "Pharma Exporters",
+        "outlook": "BEARISH",
+        "reason": "Rupee at 94.44 compresses export realizations meaningfully"
+      },
+      {
+        "sector": "Private Banks",
+        "outlook": "BEARISH",
+        "reason": "Fed hawkish \u2192 FII selling \u20b9749 Cr; bond yields 4.47%; RBI holds \u2014 no NIM catalyst"
+      },
+      {
+        "sector": "Real Estate",
+        "outlook": "BEARISH",
+        "reason": "US 10Y at 4.47% rising; Fed rate hike signal elevates global risk-free rate expectations"
+      },
+      {
+        "sector": "Airlines",
+        "outlook": "BEARISH today / FORWARD BULLISH",
+        "reason": "Crude +0.71% = headwind today; Iran deal signing Friday \u2192 crude to drop significantly"
+      },
+      {
+        "sector": "Paints & Tyres",
+        "outlook": "BEARISH today / FORWARD BULLISH",
+        "reason": "Crude derivatives up today; Iran deal = crude fall next week benefits ASIANPAINT, APOLLOTYRE"
+      },
+      {
+        "sector": "Metals",
+        "outlook": "NEUTRAL",
+        "reason": "China PMI 51.8 (expansion) supports demand; Hang Seng -1.4% and global risk-off cap upside"
+      },
+      {
+        "sector": "FMCG (Defensive)",
+        "outlook": "NEUTRAL",
+        "reason": "Risk-off = defensive bid; stocks near 52W lows; but rural demand remains soft"
+      },
+      {
+        "sector": "Oil Upstream (ONGC/OIL)",
+        "outlook": "BULLISH today only",
+        "reason": "Crude +0.71% boosts realizations today; medium-term bearish post Iran deal signing"
+      },
+      {
+        "sector": "Jewellery (TITAN)",
+        "outlook": "BULLISH",
+        "reason": "Gold at $4,351 drives positive sentiment on jewelry demand and portfolio revaluation"
+      }
+    ],
+    "picks": [
+      {
+        "symbol": "MUTHOOTFIN",
+        "catalyst": "Gold at $4,351/oz \u2014 near record high, +0.80% overnight on Fed inflation fears",
+        "logic": "Muthoot Finance is India's largest gold loan NBFC (~\u20b91 lakh Cr AUM). Higher gold prices expand the collateral value of its entire loan book, improving LTV safety, reducing NPA risk, and enabling higher loan disbursals per gram. At $4,351, the collateral headroom is at multi-month highs \u2014 positive for both AUM growth and asset quality. In a risk-off session with gold as safe-haven, MUTHOOTFIN typically outperforms the broader market. Direct, immediate P&L linkage. Risk-reward: +3% target vs -1.5% stop = 2:1.",
+        "watch_zone": {
+          "low": 3162.0,
+          "high": 3193.5
+        },
+        "prev_close": 3177.7,
+        "target_pct": 3.0,
+        "target_price": 3273.0,
+        "stop_loss": 3130.0,
+        "risk_reward": "2.0:1",
+        "actual_open": null,
+        "actual_close": null,
+        "actual_pct_change": null,
+        "hit_target": null
+      }
+    ],
+    "weekly_expiry_today": true,
+    "overall_mood": "CAUTIOUS",
+    "risks": [
+      "Weekly options expiry today (Thursday) \u2014 elevated intraday volatility; avoid chasing gap-ups >0.5%",
+      "FII sold \u20b9749 Cr on Jun 17; continuation of selling pressures Nifty 50 blue chips",
+      "Trump Iran warnings could delay Friday signing \u2192 crude spike \u2192 broader inflation risk",
+      "US 10Y at 4.47% rising \u2014 if crosses 4.60%, global risk-off intensifies significantly",
+      "RBI GDP forecast cut to 6.6% signals domestic growth caution"
+    ],
+    "eod_updated": false,
+    "eod_summary": null
   }
 ]
