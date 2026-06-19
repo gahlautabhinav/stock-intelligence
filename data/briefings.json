@@ -834,10 +834,10 @@
         },
         "target_pct": 4.0,
         "stop_loss": 4420.0,
-        "actual_open": null,
-        "actual_close": null,
-        "actual_pct_change": null,
-        "hit_target": null
+        "actual_open": 4502.0,
+        "actual_close": 5022.4,
+        "actual_pct_change": 11.56,
+        "hit_target": true
       },
       {
         "symbol": "ASIANPAINT",
@@ -851,10 +851,10 @@
         },
         "target_pct": 3.5,
         "stop_loss": 2700.0,
-        "actual_open": null,
-        "actual_close": null,
-        "actual_pct_change": null,
-        "hit_target": null
+        "actual_open": 2738.13,
+        "actual_close": 2751.0,
+        "actual_pct_change": 0.47,
+        "hit_target": false
       },
       {
         "symbol": "APOLLOTYRE",
@@ -885,7 +885,7 @@
       "Nifty at 5th consecutive gain — increased profit-taking risk intraday"
     ],
     "notes": "US markets closed (Juneteenth). China/HK closed (Dragon Boat Festival). Not an expiry day (weekly expiry was yesterday, June 18 Thursday). GIFT Nifty -0.68% vs Nifty spot suggests mild caution despite strong US/Asia backdrop. Dominant theme: US-Iran peace deal = crude crash = broad India bullish.",
-    "eod_updated": false,
-    "eod_summary": null
+    "eod_updated": true,
+    "eod_summary": "INDIGO +11.56% ✅  ASIANPAINT +0.47% ❌  APOLLOTYRE N/A ❓"
   }
 ]
