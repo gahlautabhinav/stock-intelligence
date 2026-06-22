@@ -6,12 +6,12 @@ Pre-market intelligence system for NSE intraday trading. Delivers macro news ana
 
 **https://gahlautabhinav.github.io/stock-intelligence**
 
-Editorial intelligence-briefing design (Wired-inspired):
+Editorial intelligence-briefing design (Wired-inspired), dark/light mode toggle:
 - Morning brief with full news reasoning — click any story to expand analysis
 - Sector outlook grid (BULLISH / BEARISH / NEUTRAL per sector)
 - Pick cards with watch zone, stop loss, target, and actual outcome once market closes
 - History tab: every past briefing, expandable
-- Performance tab: per-stock win rate and accuracy over time
+- Performance tab: per-stock win rate, avg move, TradingView charts (5 metrics), sector heatmap
 
 ## Schedule
 
