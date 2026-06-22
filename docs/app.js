@@ -62,6 +62,7 @@ function setupTabs() {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'stats') renderCharts();
     });
   });
 }
@@ -71,7 +72,7 @@ function render() {
   renderToday();
   renderHistory();
   renderStats();
-  renderCharts();
+  if (document.getElementById('tab-stats')?.classList.contains('active')) renderCharts();
 }
 
 // ── TODAY ────────────────────────────────────────────────────
