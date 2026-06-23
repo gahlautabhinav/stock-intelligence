@@ -1136,5 +1136,280 @@
     ],
     "eod_updated": true,
     "eod_summary": "RELIANCE +0.25% ❌  INDIGO N/A ❓  HDFCBANK -0.64% ❌"
+  },
+  {
+    "id": "2026-06-23",
+    "date": "2026-06-23",
+    "day": "Tuesday",
+    "generated_at": "2026-06-23T08:02:00+05:30",
+    "snapshot": {
+      "gift_nifty": {
+        "value": 24280,
+        "change_pct": 0.74
+      },
+      "sp500": {
+        "value": 7554.29,
+        "change_pct": 1.65
+      },
+      "nasdaq": {
+        "value": 26683.94,
+        "change_pct": 3.07
+      },
+      "crude_oil": {
+        "value": 74.07,
+        "change_pct": -2.23
+      },
+      "brent": {
+        "value": 78.2,
+        "change_pct": -1.96
+      },
+      "usd_inr": {
+        "value": 94.25,
+        "change_pct": -0.38
+      },
+      "gold": {
+        "value": 4166.54,
+        "change_pct": 0.87
+      },
+      "silver": {
+        "value": 65.2,
+        "change_pct": 1.1
+      },
+      "us_10y": {
+        "value": 4.52,
+        "change_pct": 0.06
+      },
+      "china_hsi": {
+        "value": 23445,
+        "change_pct": -0.3
+      },
+      "nikkei": {
+        "value": 72379,
+        "change_pct": 1.58
+      },
+      "nifty_prev_close": {
+        "value": 24103,
+        "change_pct": 0.4
+      }
+    },
+    "fii": {
+      "net_cr": 4859,
+      "direction": "buying"
+    },
+    "dii": {
+      "net_cr": -1160,
+      "direction": "selling"
+    },
+    "news": [
+      {
+        "headline": "US-Iran 60-Day Peace Roadmap → WTI Crude -2.23% to $74.07",
+        "what_happened": "The US Treasury authorised the production, delivery and sale of Iranian oil and petroleum products for 60 days. The US and Iran agreed on a roadmap toward a final nuclear deal, boosting expectations of gradual Hormuz Strait supply recovery. WTI crude fell to $74.07, its lowest since early March.",
+        "why_it_matters": "Crude -2.23% directly slashes fuel & raw-material costs for India's oil-dependent sectors. IndiGo saves ~₹350-400 Cr/year per $1 crude drop. Tyre makers (synthetic rubber, carbon black = 60-70% of RM) and paint companies (crude derivatives = 40-50% of RM) get immediate margin expansion. India's CAD also narrows, supporting the rupee.",
+        "affected_stocks": [
+          "INDIGO",
+          "SPICEJET",
+          "APOLLOTYRE",
+          "MRF",
+          "CEATLTD",
+          "ASIANPAINT",
+          "BERGEPAINT",
+          "KANSAINER",
+          "PIDILITIND",
+          "HPCL_BEARISH",
+          "BPCL_BEARISH",
+          "ONGC_BEARISH"
+        ],
+        "sentiment": "bullish"
+      },
+      {
+        "headline": "US Nasdaq +3.07%, S&P 500 +1.65% — Dow Hits Record 51,671",
+        "what_happened": "US equity markets surged on June 22 as the Iran deal eased inflation fears. Nasdaq posted its biggest single-session gain in months (+3.07%), the S&P 500 rose 1.65%, and the Dow Jones hit a new record close of 51,671. Oil price relief is seen as a structural inflation-fighter.",
+        "why_it_matters": "Indian IT stocks closely shadow Nasdaq moves. A 3%+ Nasdaq day historically translates to 1.5-2.5% IT sector move in India next session. USD/INR at 94.25 (rupee structurally weak vs history) means USD-revenue earners report outsized INR revenue. FII flows likely to continue into Indian large-caps.",
+        "affected_stocks": [
+          "INFY",
+          "TCS",
+          "WIPRO",
+          "HCLTECH",
+          "TECHM",
+          "MPHASIS",
+          "COFORGE",
+          "PERSISTENT",
+          "HDFCBANK",
+          "ICICIBANK"
+        ],
+        "sentiment": "bullish"
+      },
+      {
+        "headline": "FII Net Buying ₹4,859 Cr on June 22 — 4th Consecutive Day of Inflows",
+        "what_happened": "Foreign institutional investors were net buyers of ₹4,859 Cr in the cash segment on June 22. DIIs were net sellers of ₹1,160 Cr providing liquidity. This is the fourth consecutive session of meaningful FII inflows.",
+        "why_it_matters": "Sustained FII buying lifts index heavyweights with high FII ownership (HDFCBANK, RELIANCE, ICICIBANK, INFY, TCS). Broad market breadth improves. Signals global risk-on rotation into India as an EM beneficiary of lower crude and stable macro.",
+        "affected_stocks": [
+          "HDFCBANK",
+          "RELIANCE",
+          "ICICIBANK",
+          "INFY",
+          "TCS",
+          "KOTAKBANK"
+        ],
+        "sentiment": "bullish"
+      },
+      {
+        "headline": "RBI Holds Repo Rate at 5.25%; Says May Inflation Pickup is Transient",
+        "what_happened": "The RBI kept the repo rate unchanged at 5.25% for the third consecutive meeting, maintaining a neutral stance. RBI's June bulletin stated inflation remains anchored below target despite the recent energy shock. GDP forecast for FY27 lowered to 6.6% from 6.9%.",
+        "why_it_matters": "No near-term rate-hike risk from RBI removes a key overhang on rate-sensitive sectors. Bond yields may ease slightly, benefiting banks' treasury portfolios. NBFCs and housing finance see continued cheap-liquidity environment. However, RBI neutral stance (not dovish) limits any fresh upside catalyst for banks.",
+        "affected_stocks": [
+          "HDFCBANK",
+          "ICICIBANK",
+          "AXISBANK",
+          "BAJFINANCE",
+          "LICHSGFIN",
+          "DLF"
+        ],
+        "sentiment": "neutral"
+      },
+      {
+        "headline": "Nikkei +1.58% to 72,379; Shanghai +1.8% — Asia Risk-On Broad",
+        "what_happened": "Asian markets rallied strongly on June 23 morning: Nikkei 225 gained 1.58% to close at 72,379 — among its highest levels. Shanghai Composite rose 1.8%. Taiwan Taiex surged 2.7% to a record intraday high. Hang Seng lagged (-0.3%) after a technical death cross.",
+        "why_it_matters": "Broad Asia risk-on supports FII sentiment toward Indian equities. Strong Chinese industrial momentum (PMI 51.8 in May) is positive for metals demand. Nikkei strength reflects global manufacturing recovery, a positive backdrop for India's capex and industrial cycle.",
+        "affected_stocks": [
+          "TATASTEEL",
+          "JSWSTEEL",
+          "HINDALCO",
+          "VEDL",
+          "SAIL",
+          "COALINDIA"
+        ],
+        "sentiment": "bullish"
+      }
+    ],
+    "sector_outlook": [
+      {
+        "sector": "Airlines",
+        "outlook": "BULLISH",
+        "reason": "Crude -2.23%; jet fuel is 35-40% of IndiGo OPEX"
+      },
+      {
+        "sector": "IT Services",
+        "outlook": "BULLISH",
+        "reason": "Nasdaq +3.07%; USD/INR at 94.25 = strong USD revenue"
+      },
+      {
+        "sector": "Tyres & Rubber",
+        "outlook": "BULLISH",
+        "reason": "Crude -2.23%; synthetic rubber, carbon black = 60-70% RM cost"
+      },
+      {
+        "sector": "Paints & Chemicals",
+        "outlook": "BULLISH",
+        "reason": "Crude -2.23%; crude derivatives = 40-50% of RM cost"
+      },
+      {
+        "sector": "Banking (Private)",
+        "outlook": "BULLISH",
+        "reason": "FII buying ₹4,859 Cr; US financials up; RBI neutral"
+      },
+      {
+        "sector": "Metals & Mining",
+        "outlook": "BULLISH",
+        "reason": "China PMI 51.8 (expansion); Asia risk-on; Nikkei +1.58%"
+      },
+      {
+        "sector": "Auto OEM",
+        "outlook": "NEUTRAL",
+        "reason": "Crude down = cheaper fuel for consumers; but rupee weakness hurts import parts"
+      },
+      {
+        "sector": "FMCG",
+        "outlook": "NEUTRAL",
+        "reason": "Crude-linked packaging cost relief; food inflation at 5.1% caps rural demand"
+      },
+      {
+        "sector": "Pharma Exporters",
+        "outlook": "NEUTRAL",
+        "reason": "USD/INR 94.25 favorable but rupee slightly strengthening today; watch for direction"
+      },
+      {
+        "sector": "Oil & Gas PSU (OMC)",
+        "outlook": "BEARISH",
+        "reason": "Lower crude = inventory losses, potential auto-fuel price cut, margin compression"
+      },
+      {
+        "sector": "Upstream Oil (ONGC,OIL)",
+        "outlook": "BEARISH",
+        "reason": "Lower crude realization per barrel"
+      },
+      {
+        "sector": "Real Estate",
+        "outlook": "NEUTRAL",
+        "reason": "RBI unchanged — no fresh rate-cut catalyst; 10Y yield at 4.52%"
+      }
+    ],
+    "picks": [
+      {
+        "symbol": "INDIGO",
+        "catalyst": "WTI Crude -2.23% overnight on US-Iran 60-day peace roadmap",
+        "logic": "Jet fuel constitutes 35-40% of IndiGo's total operating costs. At ~$74/bbl WTI, fuel is well below IndiGo's budget assumptions. Every $1 crude drop saves IndiGo ~₹350-400 Cr/year in fuel. With Iran deal reducing geopolitical risk premium, crude may remain suppressed for weeks. IndiGo commands ~60% domestic market share and has strong operational leverage. Direct P&L benefit is immediate and significant.",
+        "ref_price": 5021.0,
+        "watch_zone": {
+          "low": 4996.0,
+          "high": 5046.0
+        },
+        "target_pct": 3.5,
+        "target_price": 5197.0,
+        "stop_loss": 4950.0,
+        "risk_reward": 2.48,
+        "actual_open": null,
+        "actual_close": null,
+        "actual_pct_change": null,
+        "hit_target": null
+      },
+      {
+        "symbol": "INFY",
+        "catalyst": "Nasdaq +3.07% on June 22; USD/INR at 94.25 (structurally weak rupee)",
+        "logic": "Infosys derives ~85% of revenues from USD. Nasdaq's 3.07% surge — largest single-day gain in months — drives valuation re-rating for Indian IT. Infosys already gained 1.29% on June 22; momentum building. USD/INR at 94.25 vs historical ~83-84 means every USD dollar of revenue is worth ~13% more in INR. FII inflows (₹4,859 Cr) directly support high-FII-ownership stocks like INFY. Q1 FY27 results season beginning — strong deal pipeline expected.",
+        "ref_price": 1071.0,
+        "watch_zone": {
+          "low": 1066.0,
+          "high": 1076.0
+        },
+        "target_pct": 4.0,
+        "target_price": 1114.0,
+        "stop_loss": 1050.0,
+        "risk_reward": 2.04,
+        "actual_open": null,
+        "actual_close": null,
+        "actual_pct_change": null,
+        "hit_target": null
+      },
+      {
+        "symbol": "APOLLOTYRE",
+        "catalyst": "WTI Crude -2.23%; synthetic rubber and carbon black (crude derivatives) = 60-70% of RM cost",
+        "logic": "Apollo Tyres sources synthetic rubber and carbon black — both petroleum-derived — as 60-70% of raw material costs. Crude at $74 (vs ~$92 in Jan 2026) means RM basket is significantly cheaper. Every 5% crude fall improves Apollo's EBITDA margin by ~150-200bps. European operations add a USD/EUR revenue layer. At ₹425.50, stock is near lower end of its 52W range (₹365–₹540) offering asymmetric upside. Crude catalyst is more structural (Iran deal) not just a one-day blip.",
+        "ref_price": 425.5,
+        "watch_zone": {
+          "low": 423.5,
+          "high": 427.5
+        },
+        "target_pct": 4.0,
+        "target_price": 442.5,
+        "stop_loss": 418.0,
+        "risk_reward": 2.27,
+        "actual_open": null,
+        "actual_close": null,
+        "actual_pct_change": null,
+        "hit_target": null
+      }
+    ],
+    "overall_mood": "BULLISH",
+    "risks": [
+      "If Nifty gaps up >1% at open (GIFT Nifty suggesting ~0.74%), watch zones for all picks shift — reduce size by 50% on gap-opens",
+      "US-Iran deal is a 60-day roadmap, not a finalized agreement — any breakdown reverses crude gains sharply and punishes airlines/tyres",
+      "Fed's hawkish tilt (9/19 members favour rate hike in late 2026) — dollar strength risk could trigger FII reversal in coming sessions",
+      "Hang Seng death cross is a technical warning — if HSI breaks down, FII risk-off could spread to India metals and broader market",
+      "RBI inflation outlook upgraded to 5.1% — limits scope for rate cuts; NBFCs/real estate miss a catalyst",
+      "Not an expiry day (Thursday = weekly options expiry) — normal volatility expected; no elevated gamma risk today"
+    ],
+    "eod_updated": false,
+    "eod_summary": null
   }
 ]
