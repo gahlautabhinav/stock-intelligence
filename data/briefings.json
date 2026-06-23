@@ -1376,10 +1376,10 @@
         "target_price": 1114.0,
         "stop_loss": 1050.0,
         "risk_reward": 2.04,
-        "actual_open": null,
-        "actual_close": null,
-        "actual_pct_change": null,
-        "hit_target": null
+        "actual_open": 1055.0,
+        "actual_close": 1033.2,
+        "actual_pct_change": -2.07,
+        "hit_target": false
       },
       {
         "symbol": "APOLLOTYRE",
@@ -1409,7 +1409,7 @@
       "RBI inflation outlook upgraded to 5.1% — limits scope for rate cuts; NBFCs/real estate miss a catalyst",
       "Not an expiry day (Thursday = weekly options expiry) — normal volatility expected; no elevated gamma risk today"
     ],
-    "eod_updated": false,
-    "eod_summary": null
+    "eod_updated": true,
+    "eod_summary": "INDIGO N/A  INFY -2.1% ❌  APOLLOTYRE N/A"
   }
 ]
