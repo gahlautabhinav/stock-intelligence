@@ -1,0 +1,278 @@
+{
+    "id":  "2026-06-19",
+    "date":  "2026-06-19",
+    "day":  "Friday",
+    "generated_at":  "2026-06-19T08:30:00+05:30",
+    "snapshot":  {
+                     "gift_nifty":  {
+                                        "value":  24003,
+                                        "change_pct":  0.06
+                                    },
+                     "nifty_prev_close":  24168,
+                     "sp500":  {
+                                   "value":  7500.58,
+                                   "change_pct":  1.08
+                               },
+                     "nasdaq":  {
+                                    "value":  26517.93,
+                                    "change_pct":  1.91
+                                },
+                     "dow":  {
+                                 "value":  51564.7,
+                                 "change_pct":  0.14
+                             },
+                     "crude_oil":  {
+                                       "value":  74.62,
+                                       "change_pct":  -2.5
+                                   },
+                     "brent":  {
+                                   "value":  77.8,
+                                   "change_pct":  -2.1
+                               },
+                     "usd_inr":  {
+                                     "value":  94.4,
+                                     "change_pct":  0.08
+                                 },
+                     "gold":  {
+                                  "value":  4188.25,
+                                  "change_pct":  -0.52
+                              },
+                     "us_10y":  {
+                                    "value":  4.46,
+                                    "change_pct":  0.05
+                                },
+                     "china_hsi":  {
+                                       "value":  null,
+                                       "change_pct":  null
+                                   },
+                     "nikkei":  {
+                                    "value":  71000,
+                                    "change_pct":  1.8
+                                }
+                 },
+    "fii":  {
+                "net_cr":  101.6,
+                "direction":  "buying"
+            },
+    "dii":  {
+                "net_cr":  1561.4,
+                "direction":  "buying"
+            },
+    "news":  [
+                 {
+                     "headline":  "US-Iran Peace Deal Formally Signed — Crude Oil Extends Decline to $74.62 (WTI)",
+                     "what_happened":  "The US and Iran digitally finalized their interim peace agreement, raising expectations of the Strait of Hormuz reopening for commercial shipping. WTI crude fell to $74.62/bbl and Brent to ~$77.80, continuing the rout from $85+ levels before the deal. Cumulative crude drop since June 14 exceeds 9%.",
+                     "why_it_matters":  "India imports ~85% of its crude needs — every $5/bbl drop in crude narrows the current account deficit by ~$6-7B annually and eases retail inflation. Jet fuel, synthetic rubber, carbon black, and petrochemical feedstocks all get cheaper. Direct P\u0026L tailwind for airlines, paints, tyres, chemicals, and logistics. Rupee also strengthens (94.40 from 95.88 peak on June 11).",
+                     "affected_stocks":  [
+                                             "INDIGO",
+                                             "SPICEJET",
+                                             "ASIANPAINT",
+                                             "BERGEPAINT",
+                                             "KANSAINER",
+                                             "MRF",
+                                             "APOLLOTYRE",
+                                             "CEATLTD",
+                                             "BALKRISIND",
+                                             "DELHIVERY",
+                                             "BLUEDART",
+                                             "PIDILITIND",
+                                             "HINDUNILVR"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "US Fed Holds Rates Unchanged — S\u0026P 500 +1.08%, Nasdaq +1.91% on June 18",
+                     "what_happened":  "The Federal Reserve kept the benchmark rate unchanged at its June meeting. Though the Fed signaled growing hawkish tilt (~half of policymakers favor a hike by Oct 2026), markets viewed the hold as a short-term reprieve. S\u0026P 500 closed at 7,500.58 (+1.08%), Nasdaq at 26,517.93 (+1.91%). Chip stocks led. US markets are CLOSED today (Juneteenth holiday).",
+                     "why_it_matters":  "Global risk-on lifts FII sentiment toward EM markets including India. Indian IT stocks sold off -1 to -2% on June 18 morning on hawkish fears — with Nasdaq now +1.91%, IT recovery is likely. FII flows expected positive. US closed today = no incremental cue, but the June 18 close sets a strong backdrop.",
+                     "affected_stocks":  [
+                                             "TCS",
+                                             "INFY",
+                                             "WIPRO",
+                                             "HCLTECH",
+                                             "TECHM",
+                                             "MPHASIS",
+                                             "COFORGE",
+                                             "PERSISTENT",
+                                             "HDFCBANK",
+                                             "ICICIBANK",
+                                             "RELIANCE"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "RBI Keeps Repo Rate at 5.25%, Neutral Stance; India Removes Tax on Foreign Bond Investment",
+                     "what_happened":  "RBI left repo rate unchanged at 5.25% in its latest meeting, maintaining neutral stance amid cautious inflation outlook. Separately, the Centre announced removal of tax on interest income and capital gains from government securities for foreign investors — India\u0027s biggest bond market reform in years.",
+                     "why_it_matters":  "Rate stability anchors NIM expectations for banks. The bond reform could attract $10-15B in fresh FII flows over coming quarters, supporting the rupee and reducing G-Sec yields — bullish for NBFCs and real estate via lower cost of capital. Short-term liquidity impact on bond markets positive.",
+                     "affected_stocks":  [
+                                             "HDFCBANK",
+                                             "ICICIBANK",
+                                             "AXISBANK",
+                                             "KOTAKBANK",
+                                             "SBIN",
+                                             "BAJFINANCE",
+                                             "BAJAJFINSV",
+                                             "LTFH"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "Nikkei +1.8% Crosses 71,000 for First Time; Asia Risk-On (China/HK Closed for Dragon Boat Festival)",
+                     "what_happened":  "Japan\u0027s Nikkei 225 surged ~1.8% to cross 71,000 for the first time — boosted by the US-Iran peace deal and Nasdaq\u0027s surge. Korea\u0027s KOSPI also hit record 9,000. Hong Kong and mainland China markets are CLOSED today for Dragon Boat Festival holiday.",
+                     "why_it_matters":  "Regional risk-on supports FII flows into India. Absence of China/HK markets eliminates a potential drag. Nikkei at record high signals strong global sentiment. Positive backdrop for broad Nifty rally, especially large-cap bluechips with high FII ownership.",
+                     "affected_stocks":  [
+                                             "HDFCBANK",
+                                             "RELIANCE",
+                                             "ICICIBANK",
+                                             "INFY",
+                                             "TCS"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "India Merchandise Exports Up 16.09% YoY in Apr-May FY27 to $88.91 Billion",
+                     "what_happened":  "India\u0027s merchandise exports for April-May FY2026-27 rose 16.09% YoY to $88.91 billion, driven by manufacturing, chemicals, and electronics. This comes even as the rupee has remained structurally weak at 94-96 per dollar.",
+                     "why_it_matters":  "Strong export performance validates Make-in-India manufacturing momentum and signals competitive pricing of Indian goods globally. The weak rupee has actually aided export competitiveness. Positive macro signal — reduces pressure on trade balance alongside the crude fall.",
+                     "affected_stocks":  [
+                                             "TATASTEEL",
+                                             "SUNPHARMA",
+                                             "DRREDDY",
+                                             "AUROPHARMA",
+                                             "WELSPUNLIV"
+                                         ],
+                     "sentiment":  "bullish"
+                 }
+             ],
+    "sector_outlook":  [
+                           {
+                               "sector":  "Airlines",
+                               "outlook":  "BULLISH",
+                               "reason":  "WTI crude at $74.62 (-2.5%) — jet fuel is 35-40% of OPEX; massive cost relief"
+                           },
+                           {
+                               "sector":  "Paints",
+                               "outlook":  "BULLISH",
+                               "reason":  "Crude derivatives (40-50% of raw material) cheaper; margin expansion expected"
+                           },
+                           {
+                               "sector":  "Tyres",
+                               "outlook":  "BULLISH",
+                               "reason":  "Synthetic rubber and carbon black (60-70% input) linked to crude; tailwind"
+                           },
+                           {
+                               "sector":  "Logistics/Transport",
+                               "outlook":  "BULLISH",
+                               "reason":  "Fuel = key OPEX; crude drop directly improves margins"
+                           },
+                           {
+                               "sector":  "Auto OEM",
+                               "outlook":  "BULLISH",
+                               "reason":  "Lower fuel prices lift consumer vehicle demand; cheaper logistics"
+                           },
+                           {
+                               "sector":  "IT Services",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "Nasdaq +1.91% positive but rupee strengthened (94.4 from 95.88) offsets USD revenue gains"
+                           },
+                           {
+                               "sector":  "Banking/NBFC",
+                               "outlook":  "BULLISH",
+                               "reason":  "US risk-on + FII buying + RBI stable rate + India bond reform = positive flows"
+                           },
+                           {
+                               "sector":  "FMCG",
+                               "outlook":  "BULLISH",
+                               "reason":  "Crude down = cheaper packaging/plastics; rupee strengthening eases import costs"
+                           },
+                           {
+                               "sector":  "Oil \u0026 Gas PSU",
+                               "outlook":  "BEARISH",
+                               "reason":  "ONGC/OIL — lower crude realization; HPCL/BPCL/IOC — lower inventory gains"
+                           },
+                           {
+                               "sector":  "Metals",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "China/HK closed (Dragon Boat Festival) — no fresh demand cue from largest buyer"
+                           },
+                           {
+                               "sector":  "Pharma",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "No sector-specific trigger; rupee strength mild headwind for exporters"
+                           },
+                           {
+                               "sector":  "Real Estate",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "Rate unchanged (no cut) but bond reform positive; construction costs easing with crude"
+                           },
+                           {
+                               "sector":  "Gold Loan NBFCs",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "Gold at $4,188 (fell from $4,210) — risk-on reduces safe-haven demand; stable collateral"
+                           }
+                       ],
+    "picks":  [
+                  {
+                      "symbol":  "INDIGO",
+                      "exchange":  "NSE",
+                      "catalyst":  "WTI crude -2.5% to $74.62; Brent ~$77.80 on US-Iran peace deal progress",
+                      "logic":  "Jet fuel constitutes ~38-40% of IndiGo\u0027s total OPEX. Every $1/bbl fall in crude saves IndiGo approximately ₹400-450 Cr annually. With crude down \u003e$10 from pre-war levels (was $85+), this is a ₹4,000-4,500 Cr annual earnings tailwind — transformational for airline profitability. IndiGo also benefits from lower lease costs as global aircraft demand stabilizes. Strong domestic passenger traffic growth reinforces the bullish case.",
+                      "ref_price":  4502.0,
+                      "watch_zone":  {
+                                         "low":  4479.5,
+                                         "high":  4524.5
+                                     },
+                      "target_pct":  4.0,
+                      "stop_loss":  4420.0,
+                      "actual_open":  4502.0,
+                      "actual_close":  5022.4,
+                      "actual_pct_change":  11.56,
+                      "hit_target":  true
+                  },
+                  {
+                      "symbol":  "ASIANPAINT",
+                      "exchange":  "NSE",
+                      "catalyst":  "Crude and petrochemical feedstocks cheaper; domestic consumption stable",
+                      "logic":  "Crude oil derivatives (titanium dioxide, VAM, ethylene oxide) constitute 40-50% of Asian Paints\u0027 raw material basket. With WTI at $74.62 (down from $85+ in May 2026), input costs are set for meaningful relief in Q1/Q2 FY27. Asian Paints already trades at a premium to history on volume recovery expectations — margin expansion from lower raws is a strong re-rating catalyst. Management had guided for margin improvement if crude sustains below $80.",
+                      "ref_price":  2746.5,
+                      "watch_zone":  {
+                                         "low":  2733.0,
+                                         "high":  2760.5
+                                     },
+                      "target_pct":  3.5,
+                      "stop_loss":  2700.0,
+                      "actual_open":  2738.13,
+                      "actual_close":  2751.0,
+                      "actual_pct_change":  0.47,
+                      "hit_target":  false
+                  },
+                  {
+                      "symbol":  "APOLLOTYRE",
+                      "exchange":  "NSE",
+                      "catalyst":  "Crude-linked synthetic rubber and carbon black prices falling sharply",
+                      "logic":  "60-70% of Apollo Tyres\u0027 raw material cost is linked to crude: synthetic rubber (SBR, BR), carbon black, nylon fabric, and process oils all derived from petrochemicals. With WTI at $74.62 (down ~$10+ from May highs), Apollo\u0027s input cost basket will deflate substantially in Q1/Q2 FY27. Apollo also has European operations where energy cost relief is amplified. Stock trades at reasonable 12-13x FY27E earnings — the crude tailwind can lift EPS estimates meaningfully.",
+                      "ref_price":  429.6,
+                      "watch_zone":  {
+                                         "low":  427.5,
+                                         "high":  431.5
+                                     },
+                      "target_pct":  4.0,
+                      "stop_loss":  421.0,
+                      "actual_open":  null,
+                      "actual_close":  null,
+                      "actual_pct_change":  null,
+                      "hit_target":  null
+                  }
+              ],
+    "overall_mood":  "BULLISH",
+    "risks":  [
+                  "GIFT Nifty at 24,003 vs Nifty spot close of 24,168 (-165 pts) indicates cautious/lower open — watch 24,000 as key support; breach = step aside",
+                  "US markets CLOSED today (Juneteenth holiday) — no real-time US cues; global liquidity thinner than usual",
+                  "Post-Thursday-expiry Friday — options OI unwinding can cause sharp intraday swings; use tight stops",
+                  "Fed hawkish signal (rate hike priced for Oct 2026, US 10Y at 4.46%) — any strong US data could trigger FII outflows from EM next week",
+                  "Strait of Hormuz reopening timeline uncertain — if implementation stalls, crude can rebound sharply, reversing all crude-sensitive picks",
+                  "INDIGO/ASIANPAINT/APOLLOTYRE may gap-up at open (crude story is well-known) — avoid chasing; only enter in watch zone",
+                  "Nifty at 5th consecutive gain — increased profit-taking risk intraday"
+              ],
+    "notes":  "US markets closed (Juneteenth). China/HK closed (Dragon Boat Festival). Not an expiry day (weekly expiry was yesterday, June 18 Thursday). GIFT Nifty -0.68% vs Nifty spot suggests mild caution despite strong US/Asia backdrop. Dominant theme: US-Iran peace deal = crude crash = broad India bullish.",
+    "eod_updated":  true,
+    "eod_summary":  "INDIGO +11.56% ✅  ASIANPAINT +0.47% ❌  APOLLOTYRE N/A ❓"
+}

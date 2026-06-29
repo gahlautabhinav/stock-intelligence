@@ -1,0 +1,249 @@
+{
+    "id":  "2026-06-22",
+    "date":  "2026-06-22",
+    "day":  "Monday",
+    "generated_at":  "2026-06-22T08:30:00+05:30",
+    "snapshot":  {
+                     "nifty50_prev_close":  {
+                                                "value":  24013.1,
+                                                "change_pct":  -0.64
+                                            },
+                     "gift_nifty":  {
+                                        "value":  24153.0,
+                                        "change_pct":  0.58
+                                    },
+                     "sp500":  {
+                                   "value":  7500.58,
+                                   "change_pct":  1.08
+                               },
+                     "nasdaq":  {
+                                    "value":  26517.93,
+                                    "change_pct":  1.91
+                                },
+                     "dow":  {
+                                 "value":  51564.7,
+                                 "change_pct":  0.14
+                             },
+                     "crude_oil":  {
+                                       "value":  77.54,
+                                       "change_pct":  0.27
+                                   },
+                     "crude_monthly_chg_pct":  -17.42,
+                     "usd_inr":  {
+                                     "value":  94.46,
+                                     "change_pct":  0.15
+                                 },
+                     "gold":  {
+                                  "value":  4144.0,
+                                  "change_pct":  -0.19
+                              },
+                     "us_10y":  {
+                                    "value":  4.46,
+                                    "change_pct":  -0.03
+                                },
+                     "china_hsi":  {
+                                       "value":  23924.81,
+                                       "change_pct":  -1.59
+                                   },
+                     "nikkei":  {
+                                    "value":  71209.5,
+                                    "change_pct":  null
+                                }
+                 },
+    "fii":  {
+                "net_cr":  4859.1,
+                "direction":  "buying"
+            },
+    "dii":  {
+                "net_cr":  -1159.6,
+                "direction":  "selling"
+            },
+    "news":  [
+                 {
+                     "headline":  "Jio Platforms files DRHP for IPO + Reliance announces $110B AI investment",
+                     "what_happened":  "Reliance Industries\u0027 subsidiary Jio Platforms filed DRHP (Draft Red Herring Prospectus) with SEBI for a public listing. Separately, Reliance announced a $110 billion investment in AI across telecom, healthcare, education and agriculture verticals.",
+                     "why_it_matters":  "Jio IPO will unlock standalone valuation (~$100B+) for Reliance shareholders. Friday\u0027s Sensex was dragged by IT weakness, so Reliance\u0027s own catalysts were overshadowed. Monday is the first full session where the market can fully price in both Jio IPO and AI investment news.",
+                     "affected_stocks":  [
+                                             "RELIANCE"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "Crude oil down 17.42% in past month — Israel-Hezbollah ceasefire + US-Iran talks ease supply risk",
+                     "what_happened":  "WTI crude is at $77.54/bbl, down ~17.42% over the past month after Israel-Hezbollah ceasefire agreement and ongoing US-Iran nuclear talks in Switzerland. Crude saw a ~8% weekly decline last week on ceasefire news. Today\u0027s +0.27% is a minor consolidation.",
+                     "why_it_matters":  "India\u0027s aviation, paints, tyres and logistics sectors have crude as a dominant cost driver. A 17.42% monthly crude decline directly compresses these sectors\u0027 largest input cost lines. IndiGo saves ~₹400 Cr per $1 crude decline annually. Asian Paints\u0027 raw material basket falls 40-50% in correlation with crude.",
+                     "affected_stocks":  [
+                                             "INDIGO",
+                                             "ASIANPAINT",
+                                             "APOLLOTYRE",
+                                             "MRF",
+                                             "BERGEPAINT",
+                                             "DELHIVERY"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "US markets closed strong on Thursday (S\u0026P +1.08%, Nasdaq +1.91%) before Juneteenth holiday",
+                     "what_happened":  "US markets closed higher on Thursday June 18 with S\u0026P 500 at 7,500.58 (+1.08%) and Nasdaq at 26,517.93 (+1.91%), driven by tech recovery and optimism over US-Iran deal progress. Markets were closed Friday June 19 (Juneteenth). Monday June 22 is the first US market open day.",
+                     "why_it_matters":  "Strong US close signals global risk-on, supporting FII flows into India. Nifty blue chips with high FII ownership (HDFCBANK, RELIANCE, ICICIBANK) benefit. Nasdaq +1.91% also provides partial counter to Accenture-driven IT selling from Friday.",
+                     "affected_stocks":  [
+                                             "HDFCBANK",
+                                             "ICICIBANK",
+                                             "RELIANCE",
+                                             "INFY",
+                                             "TCS"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "IT sector hammered Friday — Infosys -6%, TCS -3.5% on Accenture revenue guidance cut",
+                     "what_happened":  "Indian IT stocks sold off sharply on June 19: Infosys -6%, TCS -3.5%, HCL Tech -2.7%, Tech Mahindra -2.5%. Trigger was Accenture cutting its FY26 revenue growth guidance, signaling slowing enterprise IT spending globally.",
+                     "why_it_matters":  "Accenture is a leading indicator for Indian IT — same client base. Signals discretionary IT spending slowdown in global markets. However, Friday\u0027s sharp decline may be partially oversold. Rupee at 94.46/USD (5%+ YTD depreciation) provides earnings buffer. Watch for bounce vs. continued sell.",
+                     "affected_stocks":  [
+                                             "INFY",
+                                             "TCS",
+                                             "HCLTECH",
+                                             "TECHM",
+                                             "WIPRO"
+                                         ],
+                     "sentiment":  "bearish"
+                 },
+                 {
+                     "headline":  "RBI FCNR(B) forex swap facility reporting deadline today; India removes tax on foreign bond investors",
+                     "what_happened":  "RBI\u0027s FCNR(B) forex swap facility (launched June 8) requires first submission from banks by June 22 today. Banks can now offer up to 8% on NRI deposits till Sep 2026. Centre also removed taxes on interest and capital gains from Indian government securities for foreign investors, potentially attracting $40B+.",
+                     "why_it_matters":  "Positive for rupee stabilization and banking sector capital. Bond market reform could attract record FPI inflows into G-Secs. Potentially bearish for IT/Pharma exporters if rupee appreciates, but bullish for banks and rate-sensitive sectors in the medium term.",
+                     "affected_stocks":  [
+                                             "HDFCBANK",
+                                             "ICICIBANK",
+                                             "SBIN",
+                                             "AXISBANK",
+                                             "KOTAKBANK"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "India-EU FTA finalized — 93% of Indian exports get duty-free EU access",
+                     "what_happened":  "Under the India-EU Free Trade Agreement, 93% of Indian shipments will enjoy duty-free access to the 27-nation EU bloc. Luxury EU imports like cars and wines will become cheaper in India.",
+                     "why_it_matters":  "Medium-term structural positive for Indian exporters across auto components, engineering, textiles and pharma. EU is India\u0027s second-largest trading partner. Sentiment boost today for export-oriented manufacturing names.",
+                     "affected_stocks":  [
+                                             "TATAMOTORS",
+                                             "SUNPHARMA",
+                                             "DRREDDY",
+                                             "BHARATFORG"
+                                         ],
+                     "sentiment":  "bullish"
+                 }
+             ],
+    "sector_outlook":  [
+                           {
+                               "sector":  "Telecom / Conglomerate (Reliance)",
+                               "outlook":  "BULLISH",
+                               "reason":  "Jio Platforms DRHP filed; $110B AI investment — two major catalysts converge"
+                           },
+                           {
+                               "sector":  "Airlines",
+                               "outlook":  "BULLISH",
+                               "reason":  "Crude down 17.42% monthly — massive jet fuel cost relief for IndiGo"
+                           },
+                           {
+                               "sector":  "Paints",
+                               "outlook":  "BULLISH",
+                               "reason":  "Crude monthly decline reduces petroleum-derived raw material costs 40-50%"
+                           },
+                           {
+                               "sector":  "Private Banking",
+                               "outlook":  "BULLISH",
+                               "reason":  "FII net buyers ₹4,859 Cr; US markets strong; RBI bond reforms boost capital inflows"
+                           },
+                           {
+                               "sector":  "Defense",
+                               "outlook":  "BULLISH",
+                               "reason":  "Bharat Forge wins ₹425 Cr MoD contract; sustained Govt defense capex cycle"
+                           },
+                           {
+                               "sector":  "Real Estate",
+                               "outlook":  "BULLISH",
+                               "reason":  "Rate cut expectations; foreign bond market reforms improve long-term financing"
+                           },
+                           {
+                               "sector":  "IT Services",
+                               "outlook":  "MIXED",
+                               "reason":  "Accenture guidance cut = sector headwind; but Nasdaq +1.91% + weak rupee (94.46) = countervailing support"
+                           },
+                           {
+                               "sector":  "FMCG",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "Crude benefit on packaging costs; El Niño monsoon risk threatens rural demand"
+                           },
+                           {
+                               "sector":  "Metals",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "China GDP 4.5-5% stable; Hang Seng -1.59% — no strong catalyst either way"
+                           },
+                           {
+                               "sector":  "Oil \u0026 Gas (Upstream / OMC)",
+                               "outlook":  "BEARISH",
+                               "reason":  "Crude monthly -17.42% hurts ONGC realization; OMC face inventory losses + fuel price cut risk"
+                           }
+                       ],
+    "picks":  [
+                  {
+                      "symbol":  "RELIANCE",
+                      "catalyst":  "Jio Platforms DRHP filed for IPO; Reliance announces $110B AI investment",
+                      "logic":  "Jio Platforms is India\u0027s largest telecom company and a potential top-5 global IPO. DRHP filing triggers institutional repricing of Jio\u0027s standalone value (~$100B+). Separately, the $110B AI investment signals a platform-company transformation. Friday\u0027s Sensex was dragged by IT weakness — Reliance\u0027s own catalysts were overshadowed. Monday opens fresh. Stock at ₹1,309.50 is well below 52-week high of ₹1,611 — room to run. FII buying ₹4,859 Cr and GIFT Nifty +0.58% add broad tailwind.",
+                      "reference_price":  1309.5,
+                      "watch_zone":  {
+                                         "low":  1303.0,
+                                         "high":  1316.0
+                                     },
+                      "target_pct":  4.0,
+                      "stop_loss":  1284.0,
+                      "actual_open":  1328.0,
+                      "actual_close":  1331.37,
+                      "actual_pct_change":  0.254,
+                      "hit_target":  false
+                  },
+                  {
+                      "symbol":  "INDIGO",
+                      "catalyst":  "Crude oil down 17.42% monthly — jet fuel is 35-40% of IndiGo OPEX",
+                      "logic":  "IndiGo (India\u0027s largest airline by market share \u003e60%) sees its biggest cost line — jet fuel — fall dramatically as crude drops 17.42% month-on-month. Every $1 drop in crude saves ~₹400 Cr annually. At $77.54 vs ~$94 a month ago, the saving is substantial. GIFT Nifty positive, strong FII buying, and Nifty blue chip status add to the trade. Stock at ₹5,029 with 52-week range context offering momentum upside.",
+                      "reference_price":  5029.2,
+                      "watch_zone":  {
+                                         "low":  5004.0,
+                                         "high":  5054.5
+                                     },
+                      "target_pct":  4.5,
+                      "stop_loss":  4920.0,
+                      "actual_open":  null,
+                      "actual_close":  null,
+                      "actual_pct_change":  null,
+                      "hit_target":  null
+                  },
+                  {
+                      "symbol":  "HDFCBANK",
+                      "catalyst":  "FII net buyers ₹4,859 Cr Friday + US markets strong (S\u0026P +1.08%, Nasdaq +1.91%)",
+                      "logic":  "HDFCBANK is India\u0027s most FII-owned private sector bank and the most liquid way to play a global risk-on trade. US markets closed at highs Thursday, Nasdaq up 1.91%, and FIIs were net buyers Friday. RBI bond market reforms and FCNR(B) swap facility to attract $40B+ in foreign capital flow = bullish for the banking sector. Stock at ₹779.80 is significantly below 52-week high of ₹1,020 — providing substantial upside room. Rate cut cycle still in progress, expanding NIM outlook.",
+                      "reference_price":  779.8,
+                      "watch_zone":  {
+                                         "low":  776.0,
+                                         "high":  783.5
+                                     },
+                      "target_pct":  4.0,
+                      "stop_loss":  764.0,
+                      "actual_open":  789.9,
+                      "actual_close":  784.85,
+                      "actual_pct_change":  -0.639,
+                      "hit_target":  false
+                  }
+              ],
+    "overall_mood":  "BULLISH",
+    "risks":  [
+                  "IT sector (Infosys -6% on Friday) carries high Nifty 50 weight — if selling continues, index gains are capped despite positive broad tone",
+                  "Crude oil +0.27% today — if Strait of Hormuz tension spikes or Iran talks collapse, crude rebounds sharply and reverses Airlines/Paints tailwinds",
+                  "GIFT Nifty at 24,153 signals ~0.58% gap-up open — if gap-up exceeds 1%, watch zones shift higher; reduce lot size on gapping stocks",
+                  "Rupee at 94.46/USD — RBI success in stabilizing rupee via FCNR(B) could cause appreciation, headwind for IT/Pharma exporters",
+                  "El Nino monsoon deficit risk flagged — if confirmed by IMD, FMCG rural demand and fertilizer sector face sharp downgrades mid-week"
+              ],
+    "eod_updated":  true,
+    "eod_summary":  "RELIANCE +0.25% ❌  INDIGO N/A ❓  HDFCBANK -0.64% ❌"
+}
