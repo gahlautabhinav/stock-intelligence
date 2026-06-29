@@ -1,7 +1,8 @@
 // ── Config ──────────────────────────────────────────────────
 const GITHUB_USER = 'gahlautabhinav';
 const GITHUB_REPO = 'stock-intelligence';
-const DATA_URL    = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/data/briefings.json`;
+const BASE_RAW    = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
+const INDEX_URL   = `${BASE_RAW}/data/index.json`;
 const REFRESH_MS  = 5 * 60 * 1000;
 
 // ── State ────────────────────────────────────────────────────
@@ -42,15 +43,34 @@ function setupTheme() {
 
 // ── Data ─────────────────────────────────────────────────────
 async function loadData() {
+  const t = Date.now();
   try {
-    const res = await fetch(DATA_URL + '?t=' + Date.now());
-    const parsed = await res.json();
-    briefings = Array.isArray(parsed) ? parsed : [parsed];
+    // New architecture: index.json + per-day files
+    const idxRes = await fetch(INDEX_URL + '?t=' + t);
+    const dates = await idxRes.json();
+    const dayFiles = await Promise.all(
+      dates.map(date =>
+        fetch(`${BASE_RAW}/data/${date}.json?t=${t}`)
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+    );
+    briefings = dayFiles.filter(Boolean);
     briefings.sort((a, b) => new Date(b.date) - new Date(a.date));
     render();
     document.getElementById('lastRefresh').textContent = 'Updated ' + fmtTime(new Date());
   } catch (e) {
-    console.error(e);
+    // Fallback: legacy briefings.json
+    try {
+      const res = await fetch(`${BASE_RAW}/data/briefings.json?t=${t}`);
+      const parsed = await res.json();
+      briefings = Array.isArray(parsed) ? parsed : [parsed];
+      briefings.sort((a, b) => new Date(b.date) - new Date(a.date));
+      render();
+      document.getElementById('lastRefresh').textContent = 'Updated ' + fmtTime(new Date());
+    } catch (e2) {
+      console.error(e2);
+    }
   }
 }
 
