@@ -1,0 +1,219 @@
+{
+    "id":  "2026-06-18",
+    "date":  "2026-06-18",
+    "day":  "Thursday",
+    "generated_at":  "2026-06-18T08:30:00+05:30",
+    "snapshot":  {
+                     "gift_nifty":  {
+                                        "value":  24057.5,
+                                        "change_pct":  0.43
+                                    },
+                     "nifty50_prev_close":  23955.5,
+                     "sp500":  {
+                                   "value":  7420.1,
+                                   "change_pct":  -1.21
+                               },
+                     "nasdaq":  {
+                                    "value":  26021.66,
+                                    "change_pct":  -1.34
+                                },
+                     "dow":  {
+                                 "value":  51492.55,
+                                 "change_pct":  -0.98
+                             },
+                     "crude_oil_wti":  {
+                                           "value":  76.59,
+                                           "change_pct":  0.71
+                                       },
+                     "crude_oil_brent":  {
+                                             "value":  78.57,
+                                             "change_pct":  -0.5
+                                         },
+                     "usd_inr":  {
+                                     "value":  94.44,
+                                     "change_pct":  -0.15
+                                 },
+                     "gold":  {
+                                  "value":  4351.13,
+                                  "change_pct":  0.8
+                              },
+                     "silver":  {
+                                    "value":  70.94,
+                                    "change_pct":  0.89
+                                },
+                     "us_10y":  {
+                                    "value":  4.47,
+                                    "change_pct":  0.05
+                                },
+                     "china_hsi":  {
+                                       "value":  24494,
+                                       "change_pct":  -1.4
+                                   }
+                 },
+    "fii":  {
+                "net_cr":  -749.2,
+                "direction":  "selling"
+            },
+    "dii":  {
+                "net_cr":  0.1,
+                "direction":  "buying"
+            },
+    "news":  [
+                 {
+                     "headline":  "Fed signals rate hike in 2026 — S\u0026P -1.21%, Nasdaq -1.34%",
+                     "what_happened":  "Fed Chair Warsh held rates at 3.50-3.75% but 9 of 19 FOMC members pencil in at least one 2026 rate hike. PCE inflation revised to 3.6%. US 10Y yield hit 4.47%.",
+                     "why_it_matters":  "Hawkish Fed drives FII outflows from EMs. Rising bond yields pressure Indian banks, NBFCs, real estate. Risk-off globally hits Nifty blue chips with high FII ownership.",
+                     "affected_stocks":  [
+                                             "HDFCBANK",
+                                             "ICICIBANK",
+                                             "AXISBANK",
+                                             "TCS",
+                                             "INFY",
+                                             "WIPRO",
+                                             "DLF",
+                                             "BAJFINANCE"
+                                         ],
+                     "sentiment":  "bearish"
+                 },
+                 {
+                     "headline":  "Iran-US peace deal to be formally signed Friday in Switzerland",
+                     "what_happened":  "US-Iran interim framework agreed: Iran resumes oil exports, Strait of Hormuz reopens, Iran gets access to $300B economic program. Crude up +0.71% today on Trump\u0027s residual warning but deal signing is confirmed for Friday.",
+                     "why_it_matters":  "Iran oil supply returning + Hormuz reopening = significant crude price decline expected. India — world\u0027s 3rd-largest oil importer — benefits enormously (CAD narrows, INR stays strong, inflation eases). Airlines, paints, tyres are forward-looking beneficiaries.",
+                     "affected_stocks":  [
+                                             "INDIGO",
+                                             "SPICEJET",
+                                             "ASIANPAINT",
+                                             "APOLLOTYRE",
+                                             "MRF",
+                                             "MARUTI",
+                                             "HINDUNILVR"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "Gold surges to $4,351/oz (+0.80%) — near all-time record high",
+                     "what_happened":  "Gold rose 0.80% to $4,351 driven by Fed inflation fears (PCE 3.6%) and residual Iran uncertainty. Silver up +0.89%.",
+                     "why_it_matters":  "Gold loan NBFCs see immediate benefit — higher gold price = higher collateral value = improved LTV safety, lower NPA risk, stronger loan growth. MUTHOOTFIN is the direct beneficiary.",
+                     "affected_stocks":  [
+                                             "MUTHOOTFIN",
+                                             "MANAPPURAM",
+                                             "TITAN"
+                                         ],
+                     "sentiment":  "bullish"
+                 },
+                 {
+                     "headline":  "RBI holds repo at 5.25%, trims GDP forecast to 6.6%",
+                     "what_happened":  "RBI MPC unanimously kept repo unchanged at 5.25% with neutral stance. GDP growth forecast cut to 6.6% for FY27.",
+                     "why_it_matters":  "No rate-cut catalyst for banks/NBFCs/real estate today. GDP downgrade signals growth caution — mild negative for domestic cyclicals.",
+                     "affected_stocks":  [
+                                             "HDFCBANK",
+                                             "BAJFINANCE",
+                                             "DLF",
+                                             "LICHSGFIN"
+                                         ],
+                     "sentiment":  "neutral"
+                 },
+                 {
+                     "headline":  "Rupee strengthens to 94.44 — 1.5% appreciation in one week",
+                     "what_happened":  "USD/INR fell to 94.44 (from 95.88 on Jun 11), its strongest level in months, driven by Iran deal optimism reducing India\u0027s projected oil import bill.",
+                     "why_it_matters":  "BEARISH for IT exporters (TCS, INFY, WIPRO — USD revenues in INR shrink) and pharma exporters. BULLISH for airlines (dollar-denominated fuel and lease costs cheaper).",
+                     "affected_stocks":  [
+                                             "TCS",
+                                             "INFY",
+                                             "WIPRO",
+                                             "HCLTECH",
+                                             "SUNPHARMA",
+                                             "DRREDDY"
+                                         ],
+                     "sentiment":  "bearish"
+                 }
+             ],
+    "sector_outlook":  [
+                           {
+                               "sector":  "Gold Loan NBFCs",
+                               "outlook":  "BULLISH",
+                               "reason":  "Gold at $4,351 (+0.80%) — record collateral values improve AUM quality and growth"
+                           },
+                           {
+                               "sector":  "IT Services",
+                               "outlook":  "BEARISH",
+                               "reason":  "Nasdaq -1.34% + Rupee 1.5% stronger — dual headwind on valuations \u0026 USD-INR realization"
+                           },
+                           {
+                               "sector":  "Pharma Exporters",
+                               "outlook":  "BEARISH",
+                               "reason":  "Rupee at 94.44 compresses export realizations meaningfully"
+                           },
+                           {
+                               "sector":  "Private Banks",
+                               "outlook":  "BEARISH",
+                               "reason":  "Fed hawkish → FII selling ₹749 Cr; bond yields 4.47%; RBI holds — no NIM catalyst"
+                           },
+                           {
+                               "sector":  "Real Estate",
+                               "outlook":  "BEARISH",
+                               "reason":  "US 10Y at 4.47% rising; Fed rate hike signal elevates global risk-free rate expectations"
+                           },
+                           {
+                               "sector":  "Airlines",
+                               "outlook":  "BEARISH today / FORWARD BULLISH",
+                               "reason":  "Crude +0.71% = headwind today; Iran deal signing Friday → crude to drop significantly"
+                           },
+                           {
+                               "sector":  "Paints \u0026 Tyres",
+                               "outlook":  "BEARISH today / FORWARD BULLISH",
+                               "reason":  "Crude derivatives up today; Iran deal = crude fall next week benefits ASIANPAINT, APOLLOTYRE"
+                           },
+                           {
+                               "sector":  "Metals",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "China PMI 51.8 (expansion) supports demand; Hang Seng -1.4% and global risk-off cap upside"
+                           },
+                           {
+                               "sector":  "FMCG (Defensive)",
+                               "outlook":  "NEUTRAL",
+                               "reason":  "Risk-off = defensive bid; stocks near 52W lows; but rural demand remains soft"
+                           },
+                           {
+                               "sector":  "Oil Upstream (ONGC/OIL)",
+                               "outlook":  "BULLISH today only",
+                               "reason":  "Crude +0.71% boosts realizations today; medium-term bearish post Iran deal signing"
+                           },
+                           {
+                               "sector":  "Jewellery (TITAN)",
+                               "outlook":  "BULLISH",
+                               "reason":  "Gold at $4,351 drives positive sentiment on jewelry demand and portfolio revaluation"
+                           }
+                       ],
+    "picks":  [
+                  {
+                      "symbol":  "MUTHOOTFIN",
+                      "catalyst":  "Gold at $4,351/oz — near record high, +0.80% overnight on Fed inflation fears",
+                      "logic":  "Muthoot Finance is India\u0027s largest gold loan NBFC (~₹1 lakh Cr AUM). Higher gold prices expand the collateral value of its entire loan book, improving LTV safety, reducing NPA risk, and enabling higher loan disbursals per gram. At $4,351, the collateral headroom is at multi-month highs — positive for both AUM growth and asset quality. In a risk-off session with gold as safe-haven, MUTHOOTFIN typically outperforms the broader market. Direct, immediate P\u0026L linkage. Risk-reward: +3% target vs -1.5% stop = 2:1.",
+                      "watch_zone":  {
+                                         "low":  3162.0,
+                                         "high":  3193.5
+                                     },
+                      "prev_close":  3177.7,
+                      "target_pct":  3.0,
+                      "target_price":  3273.0,
+                      "stop_loss":  3130.0,
+                      "risk_reward":  "2.0:1",
+                      "actual_open":  null,
+                      "actual_close":  null,
+                      "actual_pct_change":  null,
+                      "hit_target":  null
+                  }
+              ],
+    "weekly_expiry_today":  true,
+    "overall_mood":  "CAUTIOUS",
+    "risks":  [
+                  "Weekly options expiry today (Thursday) — elevated intraday volatility; avoid chasing gap-ups \u003e0.5%",
+                  "FII sold ₹749 Cr on Jun 17; continuation of selling pressures Nifty 50 blue chips",
+                  "Trump Iran warnings could delay Friday signing → crude spike → broader inflation risk",
+                  "US 10Y at 4.47% rising — if crosses 4.60%, global risk-off intensifies significantly",
+                  "RBI GDP forecast cut to 6.6% signals domestic growth caution"
+              ],
+    "eod_updated":  true,
+    "eod_summary":  "MUTHOOTFIN: price data unavailable ❓"
+}
