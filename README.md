@@ -27,13 +27,15 @@ Editorial intelligence-briefing design (Wired-inspired), dark/light mode toggle:
 Yahoo Finance (commodities + indices)  ──┐
 ET Markets RSS (India business news)    ─┤
 WebSearch (FII/DII, GIFT Nifty, macro) ─┤──► Morning Agent ──► Telegram (2 msgs)
-                                         └──────────────────► GitHub JSON
+                                         └──► Pipedream Webhook ──► GitHub JSON
 
 NSE closing prices (Yahoo Finance .NS) ──► Evening Agent ──► Telegram (EOD recap)
-                                                         └──► GitHub JSON (actuals)
+                                                         └──► Pipedream Webhook ──► GitHub JSON
 
 GitHub JSON ──► Dashboard (GitHub Pages) ──► Browser / phone
 ```
+
+> **Why Pipedream?** Claude Code cloud agents run behind Anthropic's proxy which blocks direct GitHub API writes. Pipedream acts as a lightweight relay: the agent POSTs JSON to the webhook, Pipedream writes to GitHub outside the proxy.
 
 ## Sector Correlations
 
@@ -58,14 +60,17 @@ GitHub JSON ──► Dashboard (GitHub Pages) ──► Browser / phone
 ```
 stock-intelligence/
 ├── data/
-│   └── briefings.json      <- append-only log of all briefings + actuals
-├── docs/                   <- GitHub Pages dashboard
+│   ├── index.json           <- ordered list of all briefing dates
+│   ├── 2026-06-16.json      <- one file per trading day
+│   ├── 2026-06-17.json
+│   └── ...
+├── docs/                    <- GitHub Pages dashboard
 │   ├── index.html
-│   ├── style.css           <- Wired editorial design system
+│   ├── style.css            <- Wired editorial design system
 │   └── app.js
 ├── .github/
 │   └── workflows/
-│       └── pages.yml       <- GitHub Pages deploy with correct permissions
+│       └── pages.yml        <- GitHub Pages deploy with correct permissions
 ├── .gitignore
 └── README.md
 
@@ -74,8 +79,7 @@ agents/
 ├── morning-agent-prompt.md
 └── evening-agent-prompt.md
 
-design-files/
-└── DESIGN-wired.md
+pipedream-workflow.js        <- Pipedream Node.js code (has PAT, local reference only)
 ```
 
 ## Cloud Agents
@@ -86,7 +90,7 @@ Managed via Claude Code routines (run on Anthropic cloud -- laptop does not need
 
 ## Data Format
 
-Each entry in `briefings.json`:
+Each per-day file (`data/YYYY-MM-DD.json`):
 
 ```json
 {
@@ -127,6 +131,11 @@ Each entry in `briefings.json`:
 }
 ```
 
+`data/index.json` is a simple sorted array of date strings:
+```json
+["2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-22", "2026-06-23"]
+```
+
 ## Cost
 
 Everything free:
@@ -134,6 +143,7 @@ Everything free:
 - Data (Yahoo Finance, RSS, WebSearch): free
 - GitHub repo + Pages: free
 - Telegram bot: free
+- Pipedream webhook relay: free tier (100 invocations/day)
 
 **Total extra cost: Rs 0/month**
 

@@ -1,6 +1,7 @@
-# Agent prompts contain credentials — never commit these
+# Agent prompts and webhook files contain credentials — never commit these
 agents/
 design-files/
+pipedream-workflow.js
 *-resume.txt
 *-bot.txt
 bug-screenshots/
