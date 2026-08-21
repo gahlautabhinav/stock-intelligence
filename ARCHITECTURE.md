@@ -81,7 +81,7 @@ Stock Intelligence PA is a fully automated, zero-infrastructure pre-market intel
                   ▼                                  ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        PIPEDREAM                                    │
-│            Webhook: eoivnuika9xqmn2.m.pipedream.net                 │
+│            Webhook: <RELAY_WEBHOOK_URL>                 │
 │            Workflow: "stock-intel"                                  │
 │                                                                     │
 │  Receives: { "action": "morning"|"eod", "entry": {...} }           │
@@ -315,7 +315,7 @@ with open('/tmp/today_entry.json') as f:
 
 payload = json.dumps({"action": "morning", "entry": entry}).encode()
 req = urllib.request.Request(
-    "https://eoivnuika9xqmn2.m.pipedream.net",
+    "<RELAY_WEBHOOK_URL>",
     data=payload,
     headers={"Content-Type": "application/json"},
     method="POST"
@@ -351,11 +351,11 @@ Pipedream acts as an untethered relay: the agent POSTs JSON to a Pipedream webho
 
 | Attribute | Value |
 |-----------|-------|
-| URL | `https://eoivnuika9xqmn2.m.pipedream.net` |
+| URL | `<RELAY_WEBHOOK_URL>` — **not published here.** The endpoint accepts writes to the repo, so treat it as a credential. Live value lives in the two agent prompts (gitignored) and the relay config. |
 | Method | POST |
 | Content-Type | `application/json` |
 | Workflow name | `stock-intel` |
-| Source | `pipedream-workflow.js` (git-ignored, contains PAT) |
+| Source | `pipedream-workflow.js` (git-ignored; reads the PAT from the relay env var, no secrets in source) |
 
 **Request payload:**
 
@@ -1085,7 +1085,7 @@ If a routine missed a day (e.g., a system outage), you can manually create the m
 2. Pipedream → Settings → Environment Variables → overwrite `GITHUB_PAT`. Save. No redeploy needed; env vars are read at runtime.
 3. Verify — this writes nothing:
    ```bash
-   curl -sS -X POST https://eoivnuika9xqmn2.m.pipedream.net \
+   curl -sS -X POST <RELAY_WEBHOOK_URL> \
      -H 'Content-Type: application/json' -d '{"action":"test"}'
    ```
    Expect `{"ok":true,"action":"test","repo_status":200,"token_days_left":29}`. A `token_days_left` near 29 is the confirmation that the *new* token is live rather than the old one still cached.
