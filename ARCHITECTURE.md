@@ -378,18 +378,29 @@ Pipedream acts as an untethered relay: the agent POSTs JSON to a Pipedream webho
 ```
 Receive HTTP trigger
     │
+    ├── action === "test"     ← write-free token probe, used by the rotation runbook
+    │     └── GitHub API: GET /repos/... → returns repo_status + token_days_left
+    │
     ├── action === "morning"
-    │     ├── GitHub API: PUT /repos/gahlautabhinav/stock-intelligence/contents/data/YYYY-MM-DD.json
-    │     │   (creates new file, base64-encodes JSON)
-    │     └── GitHub API: GET then PUT /repos/.../contents/data/index.json
-    │         (reads current index, appends new date, deduplicates, sorts, writes back)
+    │     ├── GitHub API: GET  contents/data/YYYY-MM-DD.json  (sha if a rerun; 404 → null)
+    │     ├── GitHub API: PUT  contents/data/YYYY-MM-DD.json  (base64, branch: main)
+    │     ├── GitHub API: GET  contents/data/index.json       (content AND sha in one call)
+    │     └── GitHub API: PUT  contents/data/index.json       (append, dedupe, sort)
     │
     └── action === "eod"
-          └── GitHub API: GET then PUT /repos/.../contents/data/YYYY-MM-DD.json
-              (reads existing file to get SHA, overwrites with updated entry)
+          ├── GitHub API: GET  contents/data/YYYY-MM-DD.json  (404 → fail 404, no morning brief)
+          └── GitHub API: PUT  contents/data/YYYY-MM-DD.json  (overwrite with actuals)
+
+Every call checks status. Any non-2xx → $.respond(502, {ok:false, error}) + throw.
+Success → $.respond(200, {ok:true, ..., token_days_left}).
 ```
 
-All GitHub API calls use a Personal Access Token (PAT) with `repo` scope. The PAT is stored in the Pipedream workflow environment — never in the git repository.
+**Two configuration requirements, both mandatory:**
+
+1. The PAT lives in the Pipedream environment variable `GITHUB_PAT` — never in the workflow source and never in an agent prompt. Fine-grained, scoped to this repo only, **Contents: Read and write**, 30-day expiry (see §15.6).
+2. The HTTP trigger must be set to **"Return a custom response from your workflow."** Without it, `$.respond()` is a no-op and Pipedream returns its default `200 {"success":true}` on every request — including total failure. That is precisely the condition that caused F7 to go unnoticed. The agents defend against a reset by checking the response *body* for `ok === true` rather than trusting the HTTP status alone.
+
+**Why index.json is read through the authenticated Contents API rather than `raw.githubusercontent.com`:** raw is CDN-cached ~5 minutes, so a retry could read a stale index and re-append a date that was already written — this produced the duplicate `index: add 2026-07-03` commits visible in git history. The authenticated read is never cached and returns the content and the sha in a single call, so it is both correct and one request cheaper.
 
 ### 5.4 Why Not a GitHub Action
 
@@ -938,7 +949,9 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 
 **Frequency:** Rare (Pipedream free tier is reliable within its limits).
 
-**Mitigation:** The agent logs the HTTP response from Pipedream (first 300 chars). If the morning write fails, the evening agent will fail on the read step (404 from raw.githubusercontent.com). Both failures are surfaced in the routine's execution log on claude.ai/code.
+**Mitigation:** The agent verifies the relay's response body (`ok === true`) and prepends `⚠️ GITHUB WRITE FAILED: …` to the Telegram brief on any failure, while still sending the brief. If the morning write fails, the evening agent's read step 404s and it sends `⚠️ EOD SKIPPED` rather than stopping silently.
+
+> **Correction (2026-08-21):** this section previously claimed failures "are surfaced in the routine's execution log on claude.ai/code." That was technically true and practically useless — nobody reads the execution log, and it is exactly why F7 ran undetected for 37 days. Alerts now go to Telegram, which is read daily.
 
 **Manual recovery:** Trigger the Pipedream webhook manually by running the appropriate Part B Python block locally with the correct JSON payload.
 
@@ -971,6 +984,26 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 **Frequency:** Only happens when the cloud environment is new or re-created.
 
 **Mitigation:** Add `api.telegram.org` to the network egress allowlist in claude.ai/code → Settings → Environment (env ID: `env_01F43Fu7teMY2kT4rS1cdDWn`).
+
+---
+
+### F7: GitHub PAT expires
+
+**Symptom:** Morning Telegram briefs keep arriving on schedule, but the dashboard stops updating and the EOD recap stops entirely.
+
+**Frequency:** Every 30 days by design — the PAT is deliberately short-lived to cap exposure if it leaks. This is the single most likely cause of a pipeline stoppage.
+
+**Why the symptoms look unrelated:** the Telegram send is independent of the GitHub write, so the brief still goes out. The evening agent then reads today's per-day file from `raw.githubusercontent.com`, gets a 404 because the morning write never landed, and stops. One dead token produces three apparently separate symptoms.
+
+**This happened:** the PAT expired on 2026-07-16 and the outage ran undetected until 2026-08-21 — 37 days, ~26 trading days of data permanently lost. The failure was invisible because the Pipedream relay logged GitHub's status code and then returned `{ok:true}` regardless, and the evening prompt's rule on a 404 was "stop, do nothing".
+
+**Mitigation (all four are live):**
+1. The relay checks every GitHub response and returns a non-2xx via `$.respond` on failure, so the agent's `urllib` raises.
+2. The morning agent verifies the response *body* (`ok === true`, not just HTTP status) and prepends `⚠️ GITHUB WRITE FAILED: …` to the Telegram brief. The brief still sends — the alert never depends on the thing that broke.
+3. The relay reads `Github-Authentication-Token-Expiration` off any authenticated response and returns `token_days_left`; the brief carries a `🔑 GitHub token expires in N day(s)` line from 7 days out. Nothing is hardcoded, so this survives rotation with no maintenance.
+4. The dashboard shows a staleness banner once the newest briefing is 3+ trading days old, which also covers the case where the routine itself stops running and no agent is alive to send an alert.
+
+**Recovery:** rotate the token per §15.6. The next scheduled run recovers on its own; days in the gap are not recoverable, as the agents are stateless and nothing queues.
 
 ---
 
@@ -1043,10 +1076,23 @@ If a routine missed a day (e.g., a system outage), you can manually create the m
 
 ### 15.6 Rotating Credentials
 
-**GitHub PAT rotation:**
-1. Generate a new PAT at github.com/settings/tokens with `repo` scope
-2. Update the Pipedream workflow's environment variable in Pipedream dashboard
-3. Update `agents/morning-agent-prompt.md` and `agents/evening-agent-prompt.md` (if PAT is referenced there)
+**GitHub PAT rotation — every 30 days.** Trigger: the `🔑 GitHub token expires in N day(s)` line appears at the top of the morning brief. Takes ~3 minutes.
+
+1. github.com/settings/personal-access-tokens → **Generate new token**
+   - Repository access: **Only select repositories** → `stock-intelligence`
+   - Permissions → Repository → **Contents: Read and write**. Nothing else.
+   - Expiration: **30 days**
+2. Pipedream → Settings → Environment Variables → overwrite `GITHUB_PAT`. Save. No redeploy needed; env vars are read at runtime.
+3. Verify — this writes nothing:
+   ```bash
+   curl -sS -X POST https://eoivnuika9xqmn2.m.pipedream.net \
+     -H 'Content-Type: application/json' -d '{"action":"test"}'
+   ```
+   Expect `{"ok":true,"action":"test","repo_status":200,"token_days_left":29}`. A `token_days_left` near 29 is the confirmation that the *new* token is live rather than the old one still cached.
+4. github.com/settings/personal-access-tokens → revoke the old token.
+5. Next morning: the `🔑` line is gone from the brief. That is the real all-clear.
+
+The PAT exists in exactly one place — the Pipedream `GITHUB_PAT` environment variable. It is deliberately **not** in the agent prompts: the agents cannot write to `api.github.com` at all (that is why the Pipedream relay exists), so a PAT there would be dead weight and a third copy to leak. Never paste it into a prompt or the workflow source.
 
 **Telegram bot token rotation:**
 1. Use BotFather (`/revoke`) to generate a new token
