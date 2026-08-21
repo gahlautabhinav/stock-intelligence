@@ -4,6 +4,7 @@ const GITHUB_REPO = 'stock-intelligence';
 const BASE_RAW    = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main`;
 const INDEX_URL   = `${BASE_RAW}/data/index.json`;
 const REFRESH_MS  = 5 * 60 * 1000;
+const STALE_WEEKDAYS = 3;  // weekdays, not calendar days — a Fri→Mon gap is normal
 
 // ── State ────────────────────────────────────────────────────
 let briefings = [];
@@ -47,6 +48,7 @@ async function loadData() {
   try {
     // New architecture: index.json + per-day files
     const idxRes = await fetch(INDEX_URL + '?t=' + t);
+    if (!idxRes.ok) throw new Error('index.json ' + idxRes.status);
     const dates = await idxRes.json();
     const dayFiles = await Promise.all(
       dates.map(date =>
@@ -58,7 +60,6 @@ async function loadData() {
     briefings = dayFiles.filter(Boolean);
     briefings.sort((a, b) => new Date(b.date) - new Date(a.date));
     render();
-    document.getElementById('lastRefresh').textContent = 'Updated ' + fmtTime(new Date());
   } catch (e) {
     // Fallback: legacy briefings.json
     try {
@@ -67,9 +68,9 @@ async function loadData() {
       briefings = Array.isArray(parsed) ? parsed : [parsed];
       briefings.sort((a, b) => new Date(b.date) - new Date(a.date));
       render();
-      document.getElementById('lastRefresh').textContent = 'Updated ' + fmtTime(new Date());
     } catch (e2) {
       console.error(e2);
+      renderFreshness();   // briefings is empty here — render() would throw in renderStats()
     }
   }
 }
@@ -89,6 +90,7 @@ function setupTabs() {
 
 // ── Render ───────────────────────────────────────────────────
 function render() {
+  renderFreshness();
   renderToday();
   renderHistory();
   renderStats();
@@ -689,4 +691,43 @@ function fmtDateLong(d) {
 
 function fmtTime(d) {
   return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
+}
+
+// ── Freshness ─────────────────────────────────────────────────
+// Weekdays strictly after `dateStr`, up to and including today (IST).
+// Weekday count only — no NSE holiday calendar. A 2-day holiday block warns one
+// morning early. Bump STALE_WEEKDAYS if that ever gets annoying.
+function weekdaysSince(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const today = new Date(todayStr() + 'T00:00:00');
+  let n = 0;
+  while (d < today) {
+    d.setDate(d.getDate() + 1);
+    const w = d.getDay();
+    if (w !== 0 && w !== 6) n++;
+  }
+  return n;
+}
+
+// Reports DATA age, never wall-clock fetch time. The old code stamped
+// 'Updated <now>' on a 37-day-old dataset, which is how a dead pipeline went
+// unnoticed for five weeks.
+function renderFreshness() {
+  const stamp  = document.getElementById('lastRefresh');
+  const banner = document.getElementById('staleBanner');
+  if (!stamp || !banner) return;
+  const newest = briefings[0]?.date;          // briefings is sorted desc
+
+  if (!newest) {
+    stamp.textContent  = 'No data';
+    banner.textContent = '⚠ Could not load briefing data from GitHub.';
+    banner.hidden = false;
+    return;
+  }
+  const n = weekdaysSince(newest);
+  stamp.textContent  = 'Data ' + fmtDate(newest);
+  banner.textContent =
+    `⚠ Newest briefing is ${fmtDate(newest)} — ${n} trading day${n === 1 ? '' : 's'} old. `
+    + `The update pipeline may be down.`;
+  banner.hidden = n < STALE_WEEKDAYS;
 }

@@ -108,6 +108,20 @@ main { flex: 1; }
   color: var(--body);
 }
 
+/* Pipeline-stale warning. Lives outside .masthead-meta because .refresh-time is
+   display:none on mobile, and a warning you cannot see on a phone is not a warning. */
+.stale-banner {
+  font-family: var(--ff-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-bottom: 1px solid var(--hairline);
+  padding: 12px 20px;
+  text-align: center;
+}
+.stale-banner[hidden] { display: none; }
+
 /* ── Tabs ────────────────────────────────────────── */
 .tabs {
   display: flex;

@@ -5,9 +5,11 @@ pipedream-workflow.js
 *-resume.txt
 *-bot.txt
 bug-screenshots/
+graphify-out/
 
 # Local plan files
 plan.md
+FIX-PLAN.md
 *.plan.md
 
 # Python
