@@ -999,7 +999,9 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 
 **Mitigation (all four are live):**
 1. The relay checks every GitHub response and returns a non-2xx via `$.respond` on failure, so the agent's `urllib` raises.
-2. The morning agent verifies the response *body* (`ok === true`, not just HTTP status) and prepends `⚠️ GITHUB WRITE FAILED: …` to the Telegram brief. The brief still sends — the alert never depends on the thing that broke.
+2. Both agents **read the file back from `api.github.com` after POSTing** and alert only if it did not actually land (for EOD: only if `eod_updated` did not flip to true). Reads are not proxy-blocked and the Contents API is not CDN-cached, so this is ground truth. The relay's reply is treated as a hint — an unparseable receipt is logged, never alerted on. The brief still sends either way; the alert never depends on the thing that broke.
+
+   > This replaced an earlier design that trusted the relay's response body (`ok === true`). That version alerted on 2026-09-07 while the write had in fact succeeded — the relay answered with HTML and `json.loads()` threw. It failed safe, but a daily false alarm trains you to ignore the warning, which destroys the point of having one. Verify the outcome, not the receipt.
 3. The relay reads `Github-Authentication-Token-Expiration` off any authenticated response and returns `token_days_left`; the brief carries a `🔑 GitHub token expires in N day(s)` line from 7 days out. Nothing is hardcoded, so this survives rotation with no maintenance.
 4. The dashboard shows a staleness banner once the newest briefing is 3+ trading days old, which also covers the case where the routine itself stops running and no agent is alive to send an alert.
 
