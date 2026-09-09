@@ -1,0 +1,11 @@
+name = "stock-intel-relay"
+main = "src/index.js"
+compatibility_date = "2026-09-09"
+
+# Secrets are NOT set here. Set them once, encrypted, via:
+#   npx wrangler secret put GITHUB_PAT
+#   npx wrangler secret put RELAY_SECRET
+# Never add a [vars] block for either — that would commit them in plaintext.
+
+[observability]
+enabled = true
