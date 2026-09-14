@@ -2,6 +2,11 @@ name = "stock-intel-relay"
 main = "src/index.js"
 compatibility_date = "2026-09-09"
 
+# Single public endpoint only. Preview URLs would add one more public, repo-writing
+# endpoint per uploaded version, gated only by RELAY_SECRET — no reason to expose them.
+workers_dev = true
+preview_urls = false
+
 # Secrets are NOT set here. Set them once, encrypted, via:
 #   npx wrangler secret put GITHUB_PAT
 #   npx wrangler secret put RELAY_SECRET
