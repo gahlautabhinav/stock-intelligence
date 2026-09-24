@@ -47,3 +47,6 @@ cloudflare-deploy-log.txt
 relay-secret.local.txt
 cloudflare-worker/.dev.vars
 cloudflare-worker/.wrangler/
+
+# Impeccable product context (local only)
+PRODUCT.md
