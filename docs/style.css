@@ -150,6 +150,14 @@ main { flex: 1; }
 
 /* ── Layout ──────────────────────────────────────── */
 main {
+  /* width:100% is load-bearing, not redundant. <main> is a flex item of <body>
+     (display:flex; column), and auto cross-axis margins cancel `stretch`, so
+     without an explicit width main sizes to fit-content — whose floor is its
+     min-content width. The Performance tab's heatmap has a ~2650px min-content,
+     which forced main to its 1000px max-width at every viewport and gave the
+     whole page a horizontal scrollbar on mobile. min-width:0 cannot fix this;
+     fit-content's min-content floor ignores it. */
+  width: 100%;
   max-width: 1000px;
   margin: 0 auto;
   padding: var(--s32) var(--s24) var(--s48);
@@ -714,8 +722,18 @@ main {
   margin-top: var(--s4);
 }
 
+/* Four columns of tabular data have a ~350px min-content width, which still
+   overflowed a 360px phone. Let the table scroll inside its own box rather than
+   giving the whole page a horizontal scrollbar. */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
 .stock-stats-table {
   width: 100%;
+  min-width: 340px;
   border-collapse: collapse;
   border: 1px solid var(--hairline);
 }
@@ -837,6 +855,33 @@ main {
   .sector-grid        { grid-template-columns: 1fr; }
   .masthead-meta .refresh-time { display: none; }
   .snapshot-grid      { grid-template-columns: repeat(2, 1fr); }
+
+  /* Long month names ("Wednesday, 24 September 2026") at a fixed 28px overflow
+     a 360px screen. Scale with the viewport instead of guessing a breakpoint. */
+  .brief-date         { font-size: clamp(20px, 7vw, 28px); }
+  .stat-value         { font-size: 34px; }
+  .masthead-top       { padding: var(--s8) var(--s12); }
+  .wordmark           { font-size: 11px; letter-spacing: 0.08em; }
+}
+
+/* Touch targets. Every control on this page was under the 44px minimum:
+   tabs 40px tall, the theme toggle 24px, chart buttons ~22px. Scoped to coarse
+   pointers so the desktop layout keeps its tighter spacing. */
+@media (pointer: coarse) {
+  .tab {
+    min-height: 44px;
+    padding-left: var(--s12);
+    padding-right: var(--s12);
+  }
+  .theme-toggle,
+  .chart-btn {
+    min-height: 44px;
+    padding-top: var(--s8);
+    padding-bottom: var(--s8);
+  }
+  .chart-btn { padding-left: var(--s16); padding-right: var(--s16); }
+  .news-item-header,
+  .history-row-header { min-height: 44px; }
 }
 
 /* ── Focus & Motion ──────────────────────────────── */

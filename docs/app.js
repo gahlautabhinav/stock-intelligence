@@ -260,10 +260,12 @@ function renderStats() {
     ${stockRows ? `
       <hr class="section-rule">
       <div class="eyebrow">Per-Stock Breakdown</div>
-      <table class="stock-stats-table">
-        <thead><tr><th>Stock</th><th>Times Picked</th><th>Win Rate</th><th>Avg Move</th></tr></thead>
-        <tbody>${stockRows}</tbody>
-      </table>
+      <div class="table-wrap">
+        <table class="stock-stats-table">
+          <thead><tr><th>Stock</th><th>Times Picked</th><th>Win Rate</th><th>Avg Move</th></tr></thead>
+          <tbody>${stockRows}</tbody>
+        </table>
+      </div>
     ` : `<div class="empty">Stats populate after end-of-day data arrives.</div>`}
 
     <hr class="section-rule">
