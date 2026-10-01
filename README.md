@@ -27,15 +27,15 @@ Editorial intelligence-briefing design (Wired-inspired), dark/light mode toggle:
 Yahoo Finance (commodities + indices)  ──┐
 ET Markets RSS (India business news)    ─┤
 WebSearch (FII/DII, GIFT Nifty, macro) ─┤──► Morning Agent ──► Telegram (2 msgs)
-                                         └──► Pipedream Webhook ──► GitHub JSON
+                                         └──► Relay (Cloudflare Worker) ──► GitHub JSON
 
 NSE closing prices (Yahoo Finance .NS) ──► Evening Agent ──► Telegram (EOD recap)
-                                                         └──► Pipedream Webhook ──► GitHub JSON
+                                                         └──► Relay (Cloudflare Worker) ──► GitHub JSON
 
 GitHub JSON ──► Dashboard (GitHub Pages) ──► Browser / phone
 ```
 
-> **Why Pipedream?** Claude Code cloud agents run behind Anthropic's proxy which blocks direct GitHub API writes. Pipedream acts as a lightweight relay: the agent POSTs JSON to the webhook, Pipedream writes to GitHub outside the proxy.
+> **Why a relay?** Claude Code cloud agents run behind Anthropic's proxy which blocks direct GitHub API writes. A small Cloudflare Worker acts as the relay: the agent POSTs JSON to it with a secret header, and the Worker writes to GitHub outside the proxy. Source in `cloudflare-worker/` — full details in ARCHITECTURE.md §5.
 
 ## Sector Correlations
 
@@ -68,6 +68,8 @@ stock-intelligence/
 │   ├── index.html
 │   ├── style.css            <- Wired editorial design system
 │   └── app.js
+├── cloudflare-worker/       <- Relay source (tracked -- no secrets in it, see ARCHITECTURE.md §5)
+│   └── src/index.js
 ├── .github/
 │   └── workflows/
 │       └── pages.yml        <- GitHub Pages deploy with correct permissions
@@ -79,7 +81,7 @@ agents/
 ├── morning-agent-prompt.md
 └── evening-agent-prompt.md
 
-pipedream-workflow.js        <- Pipedream Node.js code (has PAT, local reference only)
+relay-secret.local.txt       <- Worker's RELAY_SECRET value
 ```
 
 ## Cloud Agents
@@ -143,7 +145,7 @@ Everything free:
 - Data (Yahoo Finance, RSS, WebSearch): free
 - GitHub repo + Pages: free
 - Telegram bot: free
-- Pipedream webhook relay: free tier (100 invocations/day)
+- Relay (Cloudflare Workers): free tier (100,000 requests/day, uses ~2/day)
 
 **Total extra cost: Rs 0/month**
 

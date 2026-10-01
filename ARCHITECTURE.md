@@ -11,7 +11,7 @@
 2. [Component Map](#2-component-map)
 3. [Full Data Flow](#3-full-data-flow)
 4. [Cloud Agents](#4-cloud-agents)
-5. [Pipedream Relay](#5-pipedream-relay)
+5. [Relay (Cloudflare Worker)](#5-relay-cloudflare-worker)
 6. [Data Layer](#6-data-layer)
 7. [GitHub Pages Dashboard](#7-github-pages-dashboard)
 8. [Telegram Delivery](#8-telegram-delivery)
@@ -71,8 +71,8 @@ Stock Intelligence PA is a fully automated, zero-infrastructure pre-market intel
 │  │  3. WebSearch FII/macro      │  │  2. Fetch .NS close prices   │ │
 │  │  4. Analyze correlations     │  │     (3-source fallback)      │ │
 │  │  5. Generate JSON entry      │  │  3. Update picks with        │ │
-│  │  6. POST → Pipedream         │  │     actual_open/close/pct    │ │
-│  │  7. Send 2 Telegram msgs     │  │  4. POST → Pipedream         │ │
+│  │  6. POST → Worker (relay)    │  │     actual_open/close/pct    │ │
+│  │  7. Send 2 Telegram msgs     │  │  4. POST → Worker (relay)    │ │
 │  └──────────────┬───────────────┘  │  5. Send EOD Telegram recap  │ │
 │                 │                  └───────────────┬──────────────┘ │
 └─────────────────│──────────────────────────────────│────────────────┘
@@ -80,17 +80,21 @@ Stock Intelligence PA is a fully automated, zero-infrastructure pre-market intel
                   │  HTTPS POST (JSON)               │  HTTPS POST (JSON)
                   ▼                                  ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        PIPEDREAM                                    │
-│            Webhook: <RELAY_WEBHOOK_URL>                 │
-│            Workflow: "stock-intel"                                  │
+│                   CLOUDFLARE WORKER (relay)                         │
+│            URL: <RELAY_WEBHOOK_URL>                     │
+│            Name: "stock-intel-relay" — source: cloudflare-worker/   │
 │                                                                     │
-│  Receives: { "action": "morning"|"eod", "entry": {...} }           │
+│  Receives: { "action": "morning"|"eod"|"test", "entry": {...} }    │
+│            header: X-Relay-Secret (rejects anything else, 403)     │
 │                                                                     │
 │  morning → Create data/YYYY-MM-DD.json                              │
 │           → Update data/index.json (append + sort)                  │
 │  eod     → Overwrite data/YYYY-MM-DD.json (with actuals)           │
+│  test    → Read-only token probe, writes nothing                    │
 │                                                                     │
-│  Uses: GitHub API (api.github.com) via Node.js — no proxy          │
+│  Uses: GitHub API (api.github.com) — no proxy on this edge          │
+│  Secrets: GITHUB_PAT + RELAY_SECRET, set via `wrangler secret`,      │
+│           never in source — source itself is tracked in git         │
 └─────────────────────────┬───────────────────────────────────────────┘
                           │
                           │  GitHub REST API (PAT auth)
@@ -164,12 +168,11 @@ Yahoo Finance (v8 JSON API)
        ┌──────┴──────────────┐
        │                     │
        ▼                     ▼
-  Telegram API         Pipedream Webhook
+  Telegram API         Cloudflare Worker
   (2 messages)         POST {"action":"morning","entry":{...}}
-  - Morning brief            │
-  - Top picks detail         ▼
-                       Pipedream Node.js
-                             │
+  - Morning brief      header: X-Relay-Secret
+  - Top picks detail         │
+                             ▼
                     ┌────────┴────────┐
                     │                 │
                     ▼                 ▼
@@ -209,12 +212,10 @@ raw.githubusercontent.com
        ┌──────┴──────────────┐
        │                     │
        ▼                     ▼
-  Telegram API         Pipedream Webhook
+  Telegram API         Cloudflare Worker
   (1 EOD message)      POST {"action":"eod","entry":{...}}
-  - Accuracy stats           │
-  - Per-pick result          ▼
-                       Pipedream Node.js
-                             │
+  - Accuracy stats      header: X-Relay-Secret
+  - Per-pick result          │
                              ▼
                        GitHub API
                        PUT data/2026-07-03.json
@@ -269,7 +270,7 @@ Both agents run on **claude.ai/code routines** — Anthropic's scheduled cloud e
 3. **WebSearch** — FII/DII net flows from previous session, key macro events overnight
 4. **Sector correlation analysis** — Claude reasons over the data: crude change → energy/airline/paints impact; FII flow direction → broad market tone; USD/INR move → IT/pharma vs import-heavy sectors
 5. **JSON construction** — Output formatted as the per-day schema (see Section 9)
-6. **Write to GitHub** — Two-part block: Part A writes JSON to `/tmp/today_entry.json`; Part B reads it and POSTs to Pipedream via `urllib.request`
+6. **Write to GitHub** — Two-part block: Part A writes JSON to `/tmp/today_entry.json`; Part B reads it and POSTs to the Cloudflare Worker relay via `urllib.request`, trusting its receipt as ground truth (see §5.3, §13 F7)
 7. **Telegram** — Two messages sent inline: (1) market mood + snapshot + FII (2) sector outlook + top picks
 
 **Why two Telegram messages:** Telegram has a 4096-character limit per message. The full brief exceeds this. Message 1 covers the macro picture; Message 2 covers picks and sector calls.
@@ -329,9 +330,19 @@ PYEOF
 
 ---
 
-## 5. Pipedream Relay
+## 5. Relay (Cloudflare Worker)
 
-### 5.1 Why It Exists
+> **History:** this relay ran on Pipedream from launch until 2026-09-14, then migrated to a
+> Cloudflare Worker. Two reasons: Pipedream's free-tier invocation credits were running down
+> toward half-used from normal operation plus debugging traffic, and Pipedream's HTTP trigger
+> has a response-mode setting that silently defaults to a canned `200 {"success":true}` unless
+> explicitly switched — the exact defect that let F7 (§13) run undetected for 37 days, and that
+> caused a second false alarm on 2026-09-07 even after the switch was supposedly made. A
+> Cloudflare Worker has no such setting: returning a `Response` object *is* the response, so
+> that whole failure class cannot exist. The Pipedream workflow was deleted on 2026-09-26 once
+> the Worker had proven itself in production. Decision record: §11 Decision 2.
+
+### 5.1 Why a Relay Exists at All
 
 Anthropic's cloud agent execution environment routes all outbound HTTP through a proxy. This proxy **blocks all write operations to `api.github.com`** with HTTP 403:
 
@@ -343,19 +354,25 @@ Anthropic's cloud agent execution environment routes all outbound HTTP through a
 This applies to: PUT, POST, PATCH, DELETE on `api.github.com`. It does **not** block:
 - `raw.githubusercontent.com` (CDN reads — used for reading data files)
 - `api.telegram.org` (if added to the network egress allowlist)
-- All other non-GitHub-API endpoints
+- All other non-GitHub-API endpoints, including a Cloudflare Worker's own `*.workers.dev` domain
 
-Pipedream acts as an untethered relay: the agent POSTs JSON to a Pipedream webhook URL, and a Node.js step inside Pipedream writes to the GitHub API using a PAT. Pipedream has no such proxy restriction.
+The relay is an untethered proxy of its own: the agent POSTs JSON to the Worker's URL, and the
+Worker writes to the GitHub API using a PAT it holds, outside Anthropic's proxy entirely.
 
-### 5.2 Webhook Specification
+*This block has not been retested since the system was first built. If it has since been
+lifted, the agents could write to `api.github.com` directly and the relay could be deleted —
+see §11 Decision 2 for the retest instructions.*
+
+### 5.2 Relay Specification
 
 | Attribute | Value |
 |-----------|-------|
-| URL | `<RELAY_WEBHOOK_URL>` — **not published here.** The endpoint accepts writes to the repo, so treat it as a credential. Live value lives in the two agent prompts (gitignored) and the relay config. |
+| URL | `<RELAY_WEBHOOK_URL>` — **not published here.** The endpoint accepts writes to the repo, so treat it as a credential even though it also requires a secret header. Live value lives in the two agent prompts (gitignored). |
 | Method | POST |
 | Content-Type | `application/json` |
-| Workflow name | `stock-intel` |
-| Source | `pipedream-workflow.js` (git-ignored; reads the PAT from the relay env var, no secrets in source) |
+| Auth | Header `X-Relay-Secret: <value>` — request is rejected with `403 {"ok":false,"error":"forbidden"}` if missing or wrong. The Worker compares against its own `RELAY_SECRET` secret. |
+| Worker name | `stock-intel-relay` |
+| Source | `cloudflare-worker/src/index.js` — **tracked in git**, unlike the old Pipedream workflow which lived only in a web UI. No secrets in source; both `GITHUB_PAT` and `RELAY_SECRET` are set via `wrangler secret put` and encrypted at rest. |
 
 **Request payload:**
 
@@ -371,12 +388,34 @@ Pipedream acts as an untethered relay: the agent POSTs JSON to a Pipedream webho
   "action": "eod",
   "entry": { ...per-day schema with actuals added... }
 }
+
+// Token probe (writes nothing — used by the rotation runbook, §15.6)
+{
+  "action": "test"
+}
 ```
 
-### 5.3 Pipedream Workflow Logic (Node.js)
+**Response shape** — every path returns explicit JSON, there is no silent default:
+
+| Case | HTTP | Body |
+|---|---|---|
+| success | 200 | `{"ok":true,"action":...,"date":...,"day":"<commit sha>",...,"token_days_left":N}` |
+| bad/missing secret | 403 | `{"ok":false,"error":"forbidden"}` |
+| bad payload | 400 | `{"ok":false,"error":"bad payload: ..."}` |
+| GitHub rejected the write | 502 | `{"ok":false,"error":"PUT ... -> <status>: <GitHub's own message>"}` |
+| eod with no morning file | 404 | `{"ok":false,"error":"no morning file for <date> - cannot apply EOD update"}` |
+
+The `day` field on a successful morning/eod response is the commit sha GitHub returned for that
+PUT — proof positive the write landed, not a guess. The agents trust this value directly rather
+than re-reading the file afterward; see §13 F7 for why a separate read-back was tried and
+removed.
+
+### 5.3 Relay Logic
 
 ```
-Receive HTTP trigger
+Receive HTTP POST
+    │
+    ├── missing/wrong X-Relay-Secret header → 403, stop (no GitHub call made)
     │
     ├── action === "test"     ← write-free token probe, used by the rotation runbook
     │     └── GitHub API: GET /repos/... → returns repo_status + token_days_left
@@ -385,22 +424,29 @@ Receive HTTP trigger
     │     ├── GitHub API: GET  contents/data/YYYY-MM-DD.json  (sha if a rerun; 404 → null)
     │     ├── GitHub API: PUT  contents/data/YYYY-MM-DD.json  (base64, branch: main)
     │     ├── GitHub API: GET  contents/data/index.json       (content AND sha in one call)
-    │     └── GitHub API: PUT  contents/data/index.json       (append, dedupe, sort)
+    │     └── GitHub API: PUT  contents/data/index.json       (append, dedupe, sort — only if new)
     │
     └── action === "eod"
-          ├── GitHub API: GET  contents/data/YYYY-MM-DD.json  (404 → fail 404, no morning brief)
+          ├── GitHub API: GET  contents/data/YYYY-MM-DD.json  (404 → respond 404, no morning brief)
           └── GitHub API: PUT  contents/data/YYYY-MM-DD.json  (overwrite with actuals)
 
-Every call checks status. Any non-2xx → $.respond(502, {ok:false, error}) + throw.
-Success → $.respond(200, {ok:true, ..., token_days_left}).
+Every GitHub call checks status. Any non-2xx -> Response.json({ok:false, error}, {status:502}).
+Success -> Response.json({ok:true, ..., token_days_left}, {status:200}).
 ```
 
-**Two configuration requirements, both mandatory:**
+**One configuration requirement, enforced by the code itself, not a UI toggle:** the PAT lives
+in the Worker secret `GITHUB_PAT`, set via `npx wrangler secret put GITHUB_PAT` from
+`cloudflare-worker/` — never in the source file and never in an agent prompt. Fine-grained,
+scoped to this repo only, **Contents: Read and write**, 30-day expiry (see §15.6). If the
+secret is unset, every request fails fast with an explicit `500 {"ok":false,"error":"GITHUB_PAT
+secret not set on the Worker"}` rather than silently defaulting to anything.
 
-1. The PAT lives in the Pipedream environment variable `GITHUB_PAT` — never in the workflow source and never in an agent prompt. Fine-grained, scoped to this repo only, **Contents: Read and write**, 30-day expiry (see §15.6).
-2. The HTTP trigger must be set to **"Return a custom response from your workflow."** Without it, `$.respond()` is a no-op and Pipedream returns its default `200 {"success":true}` on every request — including total failure. That is precisely the condition that caused F7 to go unnoticed. The agents defend against a reset by checking the response *body* for `ok === true` rather than trusting the HTTP status alone.
-
-**Why index.json is read through the authenticated Contents API rather than `raw.githubusercontent.com`:** raw is CDN-cached ~5 minutes, so a retry could read a stale index and re-append a date that was already written — this produced the duplicate `index: add 2026-07-03` commits visible in git history. The authenticated read is never cached and returns the content and the sha in a single call, so it is both correct and one request cheaper.
+**Why index.json is read through the authenticated Contents API rather than
+`raw.githubusercontent.com`:** raw is CDN-cached ~5 minutes, so a retry could read a stale index
+and re-append a date that was already written — this produced the duplicate `index: add
+2026-07-03` commits visible in git history (from the Pipedream era). The authenticated read is
+never cached and returns the content and the sha in a single call, so it is both correct and
+one request cheaper.
 
 ### 5.4 Why Not a GitHub Action
 
@@ -408,7 +454,7 @@ GitHub Actions could in theory do this (triggered by repository_dispatch). Howev
 - It would require the agent to make an API call to `api.github.com/repos/.../dispatches` — which is also blocked by Anthropic's proxy
 - There is no way for the cloud agent to trigger a GitHub Action without going through the blocked API
 
-Pipedream's free tier (100 invocations/day) comfortably covers 2 invocations per weekday (40/month), with headroom for manual reruns.
+The relay's free tier comfortably covers 2 invocations per weekday (40/month), with ample headroom for manual reruns — see §14 for the current Cloudflare Workers numbers (100,000 requests/day).
 
 ---
 
@@ -470,7 +516,7 @@ Day end (3:45 PM IST):
 | Evening agent (read) | `raw.githubusercontent.com/...data/YYYY-MM-DD.json` | None (public repo) | Once per day |
 | Dashboard (read index) | `raw.githubusercontent.com/...data/index.json` | None | Every 5 min |
 | Dashboard (read day files) | `raw.githubusercontent.com/...data/YYYY-MM-DD.json` | None | Every 5 min (all files in parallel) |
-| Pipedream (write) | `api.github.com/repos/.../contents/data/...` | PAT | Twice per day |
+| Cloudflare Worker (write) | `api.github.com/repos/.../contents/data/...` | PAT | Twice per day |
 
 All reads go through `raw.githubusercontent.com` — GitHub's CDN for raw file content. No API authentication needed. Responses are cached at the CDN edge; the dashboard adds a cache-busting `?t=Date.now()` query parameter to each request to ensure freshness.
 
@@ -614,7 +660,7 @@ PYEOF
 
 **No `requests` library.** Cloud agents may not have `requests` installed. `urllib` is Python stdlib — always available.
 
-**No temp files for Telegram.** Messages are short enough to embed inline. Temp files are only used for the JSON payload sent to Pipedream (to prevent the agent from treating Python variable names as literal values).
+**No temp files for Telegram.** Messages are short enough to embed inline. Temp files are only used for the JSON payload sent to the relay (to prevent the agent from treating Python variable names as literal values).
 
 ### 8.3 Message Structure
 
@@ -767,7 +813,7 @@ Avg actual move: +1.1%
 ["2026-06-16","2026-06-17","2026-06-18","2026-06-19","2026-06-20","2026-06-23","2026-07-03"]
 ```
 
-Plain sorted array of date strings (ISO 8601). One entry per trading day. Sorted ascending. New dates appended by Pipedream morning write, deduplicated and re-sorted before writing.
+Plain sorted array of date strings (ISO 8601). One entry per trading day. Sorted ascending. New dates appended by the relay's morning write, deduplicated and re-sorted before writing.
 
 ---
 
@@ -787,11 +833,16 @@ stock-intelligence/
 │   ├── style.css                  ← All styles (dark/light, responsive)
 │   └── app.js                     ← All JavaScript (~700 lines, no framework)
 │
+├── cloudflare-worker/             ← Relay source — TRACKED, no secrets in it (§5)
+│   ├── src/index.js               ← The Worker itself
+│   ├── wrangler.toml              ← Deploy config (workers_dev on, preview_urls off)
+│   └── README.md
+│
 ├── .github/
 │   └── workflows/
 │       └── pages.yml              ← Deploy docs/ to GitHub Pages on push
 │
-├── .gitignore                     ← agents/, pipedream-workflow.js, *.txt
+├── .gitignore                     ← agents/, *.txt, local relay secrets (below)
 ├── README.md
 └── ARCHITECTURE.md                ← This file
 
@@ -801,17 +852,24 @@ agents/
 ├── morning-agent-prompt.md        ← Full morning prompt + credentials
 └── evening-agent-prompt.md        ← Full evening prompt + credentials
 
-pipedream-workflow.js              ← Pipedream Node.js code with GitHub PAT
 telegram-bot.txt                   ← Bot token reference
+relay-secret.local.txt             ← Copy of the Worker's RELAY_SECRET value
+cloudflare-deploy-log.txt          ← Local record of the Pipedream->Worker migration
 ```
 
 **What is git-ignored and why:**
 
 | Path | Contains | Why ignored |
 |------|----------|-------------|
-| `agents/` | GitHub PAT, Telegram bot token, chat ID | Credentials must never enter version history |
-| `pipedream-workflow.js` | GitHub PAT | Same reason; also this is for reference only — the live code runs in Pipedream's cloud |
+| `agents/` | GitHub PAT references, Telegram bot token, chat ID | Credentials must never enter version history |
 | `telegram-bot.txt` | Bot token | Credentials |
+| `relay-secret.local.txt` | `RELAY_SECRET` value | Must match what the Worker was deployed with; a credential |
+| `cloudflare-deploy-log.txt` | Deploy history, no live secret values | Kept local for the user's own record, not meant to be public |
+
+Note `cloudflare-worker/` itself is **not** ignored — unlike the old `pipedream-workflow.js`,
+the Worker's source has no secrets embedded in it (`GITHUB_PAT` and `RELAY_SECRET` are set via
+`wrangler secret put`, encrypted at rest on Cloudflare's side), so there is nothing to hide by
+keeping it out of git.
 
 ---
 
@@ -819,7 +877,7 @@ telegram-bot.txt                   ← Bot token reference
 
 ### Decision 1: Zero-infrastructure, no servers
 
-**Chosen:** Claude.ai cloud routines + Pipedream + GitHub Pages + raw.githubusercontent.com
+**Chosen:** Claude.ai cloud routines + a stateless relay (Cloudflare Worker) + GitHub Pages + raw.githubusercontent.com
 
 **Rejected:** VPS/EC2 running a cron job + Python script
 
@@ -827,13 +885,22 @@ telegram-bot.txt                   ← Bot token reference
 
 ---
 
-### Decision 2: Pipedream as GitHub write relay
+### Decision 2: An authenticated relay for GitHub write access
 
-**Chosen:** Agent → Pipedream webhook → GitHub API
+**Chosen:** Agent → relay (HTTP POST, secret-header auth) → GitHub API
 
 **Rejected:** (a) Direct GitHub API from agent, (b) GitHub Actions triggered via repository_dispatch
 
-**Reasoning:** Anthropic's proxy blocks all `api.github.com` write operations. This is a hard constraint, not configurable. Option (b) was also blocked because triggering a GitHub Action requires a POST to `api.github.com/repos/.../dispatches` — the same blocked endpoint. Pipedream's free tier covers this use case with 2 invocations per day.
+**Reasoning:** Anthropic's proxy blocks all `api.github.com` write operations. This is a hard constraint, not configurable — though it has not been retested since launch; if it were lifted, option (a) becomes viable and the whole relay could be deleted. To retest: have either agent attempt a direct authenticated `PUT` to `api.github.com/repos/.../contents/data/_proxytest.json` during a manual run and see whether it still 403s. Option (b) was also blocked because triggering a GitHub Action requires a POST to `api.github.com/repos/.../dispatches` — the same blocked endpoint.
+
+**Implementation history:** the relay ran on **Pipedream** from launch (2026-06) until 2026-09-14, then migrated to a **Cloudflare Worker**. Two concrete failures drove the move, both documented in §13 F7:
+- Pipedream's free-tier credits were being consumed by normal operation plus the debugging traffic generated while diagnosing the 2026-07/08 outage, trending toward half-used.
+- Pipedream's HTTP trigger has a response-mode setting that silently defaults to a canned `200 {"success":true}` unless explicitly switched to "return a custom response." This was the root mechanism that let the 37-day outage (F7) go undetected, and it produced a second false alarm on 2026-09-07 even after the switch was believed to be made.
+
+A Cloudflare Worker has no equivalent footgun: returning a `Response` object *is* the response,
+so there is no default to silently fall back to. The Pipedream workflow was deleted on
+2026-09-26 after the Worker had run cleanly in production for two full weeks. See §5 for the
+current relay's full specification.
 
 ---
 
@@ -847,13 +914,13 @@ telegram-bot.txt                   ← Bot token reference
 
 ---
 
-### Decision 4: raw.githubusercontent.com for reads, Pipedream for writes
+### Decision 4: raw.githubusercontent.com for reads, the relay for writes
 
-**Chosen:** Split read/write paths — reads via CDN, writes via Pipedream relay
+**Chosen:** Split read/write paths — reads via CDN, writes via the relay (§5)
 
 **Rejected:** All reads/writes through GitHub API
 
-**Reasoning:** `raw.githubusercontent.com` is not blocked by Anthropic's proxy and requires no authentication for public repos. It's also faster (CDN) and more reliable than the GitHub REST API for read operations. The asymmetric design (CDN reads, relay writes) cleanly works within the constraints.
+**Reasoning:** `raw.githubusercontent.com` is not blocked by Anthropic's proxy and requires no authentication for public repos. It's also faster (CDN) and more reliable than the GitHub REST API for read operations. The asymmetric design (CDN reads, relay writes) cleanly works within the constraints. Note the relay itself does **not** follow this rule internally — it reads `index.json` through the authenticated Contents API rather than the CDN, specifically to avoid the CDN's ~5-minute staleness window (§5.3).
 
 ---
 
@@ -905,14 +972,14 @@ These are immovable limitations of the current environment that shaped every des
 
 | Constraint | Impact | Mitigation |
 |------------|--------|------------|
-| Anthropic proxy blocks `api.github.com` writes (HTTP 403) | Agents cannot write directly to GitHub | Pipedream relay |
+| Anthropic proxy blocks `api.github.com` writes (HTTP 403) | Agents cannot write directly to GitHub | Relay (Cloudflare Worker, §5) — unretested whether still true, see §11 Decision 2 |
 | Anthropic proxy blocks `api.telegram.org` by default | Agents cannot send Telegram messages | Add to egress allowlist in claude.ai/code environment settings |
 | `raw.githubusercontent.com` is not blocked | CDN reads are unaffected | Used for all data reads |
 | Cloud agent env may lack third-party Python packages | Cannot assume `requests`, `httpx`, etc. | stdlib `urllib` only |
 | Telegram message limit: 4096 characters | Full brief cannot fit in one message | Split into two Telegram messages |
 | `parse_mode=HTML`: strict entity parsing | `&` in "S&P 500" breaks Telegram | No `parse_mode`; plain text only |
 | claude.ai routines: no persistent state between runs | Agents cannot remember previous output | All state lives in GitHub data files; agents re-read as needed |
-| Multiple GitHub accounts (personal + company) | Cannot use claude.ai's `add_repo` OAuth integration | GitHub PAT in Pipedream environment instead |
+| Multiple GitHub accounts (personal + company) | Cannot use claude.ai's `add_repo` OAuth integration | GitHub PAT held as a Cloudflare Worker secret instead |
 
 ---
 
@@ -943,25 +1010,25 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 
 ---
 
-### F3: Pipedream invocation fails
+### F3: Relay invocation fails
 
 **Symptom:** JSON not written to GitHub; dashboard not updated.
 
-**Frequency:** Rare (Pipedream free tier is reliable within its limits).
+**Frequency:** Rare. On Pipedream this category included the response-mode footgun described in F7; on the Cloudflare Worker (current, since 2026-09-14) the Worker itself cannot silently fail — see §5.3. Remaining causes are a dead `GITHUB_PAT` secret (§15.6) or a genuine Cloudflare outage.
 
-**Mitigation:** The agent verifies the relay's response body (`ok === true`) and prepends `⚠️ GITHUB WRITE FAILED: …` to the Telegram brief on any failure, while still sending the brief. If the morning write fails, the evening agent's read step 404s and it sends `⚠️ EOD SKIPPED` rather than stopping silently.
+**Mitigation:** The agent trusts the relay's receipt (`ok === true` with a commit sha in `day`) as ground truth and prepends `⚠️ GITHUB WRITE FAILED: …` to the Telegram brief on anything else, while still sending the brief. If the morning write fails, the evening agent's read step 404s and it sends `⚠️ EOD SKIPPED` rather than stopping silently.
 
 > **Correction (2026-08-21):** this section previously claimed failures "are surfaced in the routine's execution log on claude.ai/code." That was technically true and practically useless — nobody reads the execution log, and it is exactly why F7 ran undetected for 37 days. Alerts now go to Telegram, which is read daily.
 
-**Manual recovery:** Trigger the Pipedream webhook manually by running the appropriate Part B Python block locally with the correct JSON payload.
+**Manual recovery:** POST directly to the relay with the correct JSON payload and the `X-Relay-Secret` header (§15.5), or run the appropriate Part B Python block locally.
 
 ---
 
 ### F4: GitHub API rate limit
 
-**Symptom:** Pipedream GitHub API calls return HTTP 429 or 403.
+**Symptom:** The relay's GitHub API calls return HTTP 429 or 403.
 
-**Frequency:** Unlikely (2 writes/day vs. 5,000 write requests/hour limit for PATs).
+**Frequency:** Unlikely (2 writes/day vs. 5,000 write requests/hour limit for authenticated PATs — this is the Worker's own authenticated quota, distinct from the 60/hour unauthenticated per-IP limit discussed in F7).
 
 **Mitigation:** Not needed at current scale.
 
@@ -969,7 +1036,7 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 
 ### F5: Agent produces malformed JSON in Part A
 
-**Symptom:** Part B `json.load()` raises `JSONDecodeError`; Pipedream never called.
+**Symptom:** Part B `json.load()` raises `JSONDecodeError`; the relay never gets called.
 
 **Frequency:** Rare — Claude claude-sonnet-4-6 produces valid JSON reliably.
 
@@ -1018,7 +1085,7 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 |-----------|---------|------|------|
 | AI reasoning (both agents) | Claude claude-sonnet-4-6 | Claude Max subscription (already paid) | ₹0/month incremental |
 | Scheduling (cloud routines) | claude.ai/code | Included in Claude Max | ₹0/month |
-| Data relay | Pipedream | Free tier (100 invocations/day; uses ~2/day) | ₹0/month |
+| Data relay | Cloudflare Workers | Free tier (100,000 requests/day; uses ~2/day) | ₹0/month |
 | Data storage | GitHub | Free tier | ₹0/month |
 | Dashboard hosting | GitHub Pages | Free tier | ₹0/month |
 | Market data | Yahoo Finance | Free (unofficial API) | ₹0/month |
@@ -1027,7 +1094,7 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 | Notifications | Telegram Bot API | Free | ₹0/month |
 | **Total** | | | **₹0/month** |
 
-**Sustainable limits:** The system generates ~2 Pipedream invocations per weekday (40–44/month) against a 100/day free limit. GitHub Pages and raw.githubusercontent.com have no practical limits for this traffic volume. The system has significant headroom before any paid tier would be needed.
+**Sustainable limits:** The system generates ~2 relay invocations per weekday (40–44/month) against Cloudflare Workers' 100,000/day free limit — roughly 0.002% of the quota. GitHub Pages and raw.githubusercontent.com have no practical limits for this traffic volume. There is no realistic path to needing a paid tier for this workload. (Under the previous Pipedream relay, the same ~44/month sat against a 100/day — not /month — free-invocation limit; still comfortable, but the headroom is now roughly three orders of magnitude larger.)
 
 ---
 
@@ -1039,6 +1106,9 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 |---------|-----|
 | Morning agent | https://claude.ai/code/routines/trig_014yZyW2H8Mpq2GQeMsG5SDy |
 | Evening agent | https://claude.ai/code/routines/trig_01FXHWTMHqss4oNU6b9KGJ1D |
+
+The relay itself has no equivalent public dashboard link — its URL is a credential (§5.2).
+Manage it at the Cloudflare dashboard → Workers & Pages → `stock-intel-relay`.
 
 ### 15.2 Manual Trigger
 
@@ -1076,7 +1146,13 @@ If a routine missed a day (e.g., a system outage), you can manually create the m
 
 1. Construct the JSON payload following the schema in Section 9
 2. Either:
-   - POST directly to the Pipedream webhook with `"action": "morning"`
+   - POST directly to the relay with `"action": "morning"` and the `X-Relay-Secret` header:
+     ```bash
+     curl -sS -X POST <RELAY_WEBHOOK_URL> \
+       -H 'Content-Type: application/json' \
+       -H "X-Relay-Secret: $(cat relay-secret.local.txt)" \
+       -d '{"action":"morning","entry":{...}}'
+     ```
    - Or `git add` the file at `data/YYYY-MM-DD.json` and update `data/index.json` by appending the date and sorting
 
 ### 15.6 Rotating Credentials
@@ -1087,17 +1163,32 @@ If a routine missed a day (e.g., a system outage), you can manually create the m
    - Repository access: **Only select repositories** → `stock-intelligence`
    - Permissions → Repository → **Contents: Read and write**. Nothing else.
    - Expiration: **30 days**
-2. Pipedream → Settings → Environment Variables → overwrite `GITHUB_PAT`. Save. No redeploy needed; env vars are read at runtime.
+2. From `cloudflare-worker/`:
+   ```bash
+   cd cloudflare-worker
+   npx wrangler secret put GITHUB_PAT
+   ```
+   It prompts `Enter a secret value:` — paste the new token **there**, never on the command
+   line itself (anything typed as an argument lands in shell history in plaintext). No
+   redeploy needed; Worker secrets are read at runtime.
 3. Verify — this writes nothing:
    ```bash
    curl -sS -X POST <RELAY_WEBHOOK_URL> \
-     -H 'Content-Type: application/json' -d '{"action":"test"}'
+     -H 'Content-Type: application/json' \
+     -H "X-Relay-Secret: $(cat ../relay-secret.local.txt)" \
+     -d '{"action":"test"}'
    ```
-   Expect `{"ok":true,"action":"test","repo_status":200,"token_days_left":29}`. A `token_days_left` near 29 is the confirmation that the *new* token is live rather than the old one still cached.
+   Expect `{"ok":true,"action":"test","repo_status":200,"token_days_left":29}`. A
+   `token_days_left` near 29 is the confirmation that the *new* token is live rather than the
+   old one still cached. A `403 {"ok":false,"error":"forbidden"}` means the secret header is
+   wrong, not the PAT — check `relay-secret.local.txt` matches what the Worker has.
 4. github.com/settings/personal-access-tokens → revoke the old token.
 5. Next morning: the `🔑` line is gone from the brief. That is the real all-clear.
 
-The PAT exists in exactly one place — the Pipedream `GITHUB_PAT` environment variable. It is deliberately **not** in the agent prompts: the agents cannot write to `api.github.com` at all (that is why the Pipedream relay exists), so a PAT there would be dead weight and a third copy to leak. Never paste it into a prompt or the workflow source.
+The PAT exists in exactly one place — the Cloudflare Worker's `GITHUB_PAT` secret. It is
+deliberately **not** in the agent prompts: the agents cannot write to `api.github.com` at all
+(that is why the relay exists), so a PAT there would be dead weight and a third copy to leak.
+Never paste it into a prompt or the worker source file.
 
 **Telegram bot token rotation:**
 1. Use BotFather (`/revoke`) to generate a new token
@@ -1106,11 +1197,16 @@ The PAT exists in exactly one place — the Pipedream `GITHUB_PAT` environment v
 ### 15.7 Checking Execution Logs
 
 Each routine execution on claude.ai/code shows full output including:
-- Python heredoc stdout (confirms Pipedream HTTP response)
+- Python heredoc stdout (prints the relay's receipt — `RELAY RECEIPT: {...}` — and `VERIFIED - commit <sha>` on success)
 - Telegram send result
 - Any error tracebacks
 
 Access via: claude.ai/code → Routines → [routine name] → Execution history
+
+For the relay side specifically: Cloudflare dashboard → Workers & Pages → `stock-intel-relay` →
+**Logs** (live tail of recent invocations) or **Metrics** (request counts over time — useful for
+confirming the agents are the only thing calling it; see F3 and the `test` action in §5.2 for a
+write-free way to probe it manually).
 
 ---
 
@@ -1125,7 +1221,7 @@ sequenceDiagram
     participant YF as Yahoo Finance
     participant ET as ET Markets RSS
     participant WS as WebSearch
-    participant PD as Pipedream
+    participant W as Cloudflare Worker (relay)
     participant GH as GitHub API
     participant TG as Telegram
 
@@ -1144,14 +1240,18 @@ sequenceDiagram
     A->>TG: POST /sendMessage (picks + sectors)
     TG-->>A: 200 OK
     Note over A: Write JSON to /tmp/today_entry.json
-    A->>PD: POST webhook {action:"morning", entry:{...}}
-    PD->>GH: PUT /contents/data/2026-07-03.json
-    GH-->>PD: 201 Created
-    PD->>GH: GET /contents/data/index.json
-    GH-->>PD: 200 + current index + SHA
-    PD->>GH: PUT /contents/data/index.json (appended + sorted)
-    GH-->>PD: 200 OK
-    PD-->>A: 200 OK
+    A->>W: POST {action:"morning", entry:{...}}<br/>header X-Relay-Secret
+    W->>W: validate secret header (403 + stop if wrong)
+    W->>GH: GET /contents/data/2026-07-03.json (sha if rerun, else 404)
+    GH-->>W: 404, or 200 + sha
+    W->>GH: PUT /contents/data/2026-07-03.json
+    GH-->>W: 201 Created (commit sha)
+    W->>GH: GET /contents/data/index.json (content + sha)
+    GH-->>W: 200 + current index + sha
+    W->>GH: PUT /contents/data/index.json (appended + sorted)
+    GH-->>W: 200 OK (commit sha)
+    W-->>A: 200 {ok:true, day:"<sha>", index:"<sha>", token_days_left:N}
+    Note over A: Trusts the sha as proof of landing —<br/>no separate read-back (see §13 F7)
 ```
 
 ### Evening Flow
@@ -1163,7 +1263,7 @@ sequenceDiagram
     participant RAW as raw.githubusercontent.com
     participant YF as Yahoo Finance
     participant WS as WebSearch
-    participant PD as Pipedream
+    participant W as Cloudflare Worker (relay)
     participant GH as GitHub API
     participant TG as Telegram
 
@@ -1189,12 +1289,14 @@ sequenceDiagram
     A->>TG: POST /sendMessage (EOD recap)
     TG-->>A: 200 OK
     Note over A: Write updated JSON to /tmp/today_entry.json
-    A->>PD: POST webhook {action:"eod", entry:{...}}
-    PD->>GH: GET /contents/data/2026-07-03.json (to get SHA)
-    GH-->>PD: 200 + file content + SHA
-    PD->>GH: PUT /contents/data/2026-07-03.json (overwrite with actuals)
-    GH-->>PD: 200 OK
-    PD-->>A: 200 OK
+    A->>W: POST {action:"eod", entry:{...}}<br/>header X-Relay-Secret
+    W->>W: validate secret header (403 + stop if wrong)
+    W->>GH: GET /contents/data/2026-07-03.json (sha; 404 -> respond 404, no morning file)
+    GH-->>W: 200 + file content + sha
+    W->>GH: PUT /contents/data/2026-07-03.json (overwrite with actuals)
+    GH-->>W: 200 OK (commit sha)
+    W-->>A: 200 {ok:true, day:"<sha>", token_days_left:N}
+    Note over A: Trusts the sha as proof of landing —<br/>no separate read-back (see §13 F7)
 ```
 
 ### Dashboard Load Flow
