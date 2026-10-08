@@ -4,6 +4,12 @@
 // briefing JSON to GitHub. Exists because Anthropic's cloud-agent egress proxy
 // returns 403 on writes to api.github.com (reads are fine).
 //
+// action: "morning" | "eod"      -> {entry: {...}}, writes data/<date>.json
+// action: "strategy"             -> {rule_weights: {...}, notes_append: "..."},
+//                                    writes data/strategy/rule_weights.json and
+//                                    appends to data/strategy/STRATEGY_NOTES.md
+// action: "test"                 -> read-only token probe, writes nothing
+//
 // Secrets (never in this file — set via `wrangler secret put`):
 //   GITHUB_PAT    fine-grained PAT, this repo only, Contents: Read and write
 //   RELAY_SECRET  shared secret; callers must send it as the X-Relay-Secret header
@@ -68,12 +74,13 @@ export default {
     // Briefings contain ₹, em-dashes and emoji, so the base64 must be UTF-8 safe.
     // btoa() alone throws on any codepoint > 255; TextEncoder/TextDecoder are the
     // portable way to bridge that (no deprecated unescape/escape).
-    const b64encode = (obj) => {
-      const bytes = new TextEncoder().encode(JSON.stringify(obj));
+    const b64encodeText = (str) => {
+      const bytes = new TextEncoder().encode(str);
       let bin = "";
       for (const b of bytes) bin += String.fromCharCode(b);
       return btoa(bin);
     };
+    const b64encode = (obj) => b64encodeText(JSON.stringify(obj));
     const b64decode = (content) => {
       const bin = atob(content.replace(/\s/g, ""));
       const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
@@ -96,11 +103,11 @@ export default {
       return r.json();
     }
 
-    async function ghPut(path, message, obj, sha) {
+    async function ghPutRaw(path, message, base64content, sha) {
       const body = {
         message,
         branch: "main",
-        content: b64encode(obj),
+        content: base64content,
         ...(sha ? { sha } : {}),
       };
       const r = await fetch(`${GH}/${path}`, {
@@ -112,6 +119,8 @@ export default {
       if (!r.ok) throw new GhError(502, `PUT ${path} -> ${r.status}: ${(await r.text()).slice(0, 200)}`);
       return (await r.json()).commit.sha;
     }
+    const ghPut = (path, message, obj, sha) => ghPutRaw(path, message, b64encode(obj), sha);
+    const ghPutText = (path, message, text, sha) => ghPutRaw(path, message, b64encodeText(text), sha);
 
     const ok = (body) => json(200, { ok: true, ...body, token_expires: tokenExp, token_days_left: daysLeft() });
 
@@ -122,6 +131,45 @@ export default {
         noteExp(r);
         if (!r.ok) throw new GhError(502, `token check -> ${r.status}: ${(await r.text()).slice(0, 200)}`);
         return ok({ action: "test", repo_status: r.status });
+      }
+
+      // Weekly strategy review (§5 extension): rewrites data/strategy/rule_weights.json
+      // wholesale and APPENDS to data/strategy/STRATEGY_NOTES.md — never overwrites the
+      // notes file, that log is the audit trail of every weight decision made, including
+      // "no change, insufficient evidence" weeks.
+      if (action === "strategy") {
+        const { rule_weights, notes_append } = payload;
+        if (typeof notes_append !== "string" || !notes_append.trim()) {
+          return json(400, { ok: false, action, error: "bad payload: notes_append must be a non-empty string" });
+        }
+        if (typeof rule_weights !== "object" || rule_weights === null || Array.isArray(rule_weights)) {
+          return json(400, { ok: false, action, error: "bad payload: rule_weights must be an object" });
+        }
+
+        // Server-side date, not agent-claimed — same ground-truth principle as the sha below.
+        const stamp = new Date().toISOString().slice(0, 10);
+
+        const wExisting = await ghGet("contents/data/strategy/rule_weights.json");
+        const weightsDoc = { generated_at: new Date().toISOString(), weights: rule_weights };
+        const weights = await ghPut(
+          "contents/data/strategy/rule_weights.json",
+          `strategy: update rule weights (${stamp})`,
+          weightsDoc,
+          wExisting?.sha
+        );
+
+        const nExisting = await ghGet("contents/data/strategy/STRATEGY_NOTES.md");
+        const prior = nExisting
+          ? b64decode(nExisting.content)
+          : "# Strategy Notes\n\nWeekly review log. Append-only — newest entries at the bottom.\n";
+        const notes = await ghPutText(
+          "contents/data/strategy/STRATEGY_NOTES.md",
+          `strategy: notes for ${stamp}`,
+          prior.replace(/\s*$/, "\n") + `\n## ${stamp}\n\n${notes_append.trim()}\n`,
+          nExisting?.sha
+        );
+
+        return ok({ action, date: stamp, weights, notes });
       }
 
       if (!entry?.date) {

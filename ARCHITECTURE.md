@@ -23,6 +23,7 @@
 14. [Cost Breakdown](#14-cost-breakdown)
 15. [Operations Guide](#15-operations-guide)
 16. [Sequence Diagrams](#16-sequence-diagrams)
+17. [Strategy Review Loop (Self-Improvement)](#17-strategy-review-loop-self-improvement)
 
 ---
 
@@ -801,7 +802,8 @@ Avg actual move: +1.1%
 | `picks[].actual_open` | number | Evening agent | NSE opening price |
 | `picks[].actual_close` | number | Evening agent | NSE closing price |
 | `picks[].actual_pct_change` | number | Evening agent | `(close-open)/open × 100` |
-| `picks[].hit_target` | boolean | Evening agent | `actual_pct_change >= target_pct` |
+| `picks[].hit_target` | boolean | Evening agent | `actual_pct_change >= target_pct * 0.75`. Assumes `target_pct > 0` (long-only picks) — would compute backwards for a bearish/short pick, but every historical pick has been long-only by convention and the morning prompt never instructs a bearish pick, so this hasn't fired in practice. Flagged here, not fixed — fix it if that convention ever changes. |
+| `picks[].direction_correct` | boolean | Evening agent | `(actual_pct_change > 0) == (target_pct > 0)` — added 2026-10. A looser, less-noisy signal than `hit_target`; this is what the strategy review (§17) actually learns from. |
 | `overall_mood` | string | Morning agent | `"BULLISH"`, `"BEARISH"`, `"CAUTIOUS"`, `"NEUTRAL"` |
 | `risks[]` | array | Morning agent | String array |
 | `eod_updated` | boolean | Evening agent | `true` after EOD run |
@@ -1323,5 +1325,167 @@ sequenceDiagram
 
 ---
 
+## 17. Strategy Review Loop (Self-Improvement)
+
+Added 2026-10-08. A weekly process that backtests this system's own pick history and feeds
+sector-level confidence weights back into the morning agent's reasoning.
+
+### 17.1 Why This Exists, and What It Deliberately Is Not
+
+The request that triggered this was: *can this system learn, the way
+[`karpathy/autoresearch`](https://github.com/karpathy/autoresearch) lets an agent iterate on
+ML training runs overnight?* Worth being precise about what that project actually does, since
+its exact mechanism does **not** transfer here:
+
+`autoresearch` splits a fixed `prepare.py` (data + eval, agent never touches it) from an
+agent-editable `train.py` (model/optimizer/training loop). Each cycle: propose an edit, run a
+**5-minute training job**, measure a quantitative metric, commit if it improved or roll back —
+roughly 12 experiments/hour, ~100 overnight.
+
+That loop works because every experiment is cheap, fast, and independently scoreable against
+a large, fixed, reusable dataset. None of that holds here:
+
+- **One real experiment = one trading day.** There is no way to run 100 "picks" overnight
+  against the actual future.
+- **Backtesting the fixed historical picks over and over is itself the trap.** With ~100
+  scored picks total, running "propose a reweighting → backtest → keep if better" many times
+  against the *same* finite sample is p-hacking a small, noisy dataset, not discovering real
+  structure — the opposite of `autoresearch`, where each run sees fresh data.
+- **Markets are not stationary.** A correlation that held in June data isn't guaranteed to
+  hold in October for structural reasons (regime change, a rate cycle, etc.) — unlike, say,
+  next-token prediction on a frozen web-text corpus.
+
+So the mechanism (fast iterate/measure/commit, many times a night) doesn't port. The *spirit*
+does: a fixed, non-agent-editable evaluation harness; an agent-editable strategy layer the
+harness doesn't touch; a running notes file the agent's own interpretation goes into (the
+`program.md` analog) — just run weekly, against real-world feedback arriving at one data point
+per trading day, not synthetic experiments arriving at 12/hour.
+
+### 17.2 What Was Actually Wrong (checked before building anything)
+
+Before adding any learning loop, the existing ~5% `hit_target` rate was diagnosed directly
+against the real pick history (84 scored picks at the time):
+
+```
+median target_pct (what's needed):      3.20%
+median actual_pct_change (what moves):  0.71%
+bar to clear hit_target (75% of target): 2.40%
+```
+
+**The target was calibrated to roughly 4.5x a typical realized move.** A single NSE stock
+moving 2.4%+ in a day purely on a macro catalyst is rare — so even a correctly-called sector
+direction mostly read as a miss. Of the misses: 56% were wrong direction, 39% were *right
+direction but missed only on magnitude*. That second number is a measurement-calibration
+problem, not a reasoning-quality problem, and no learning loop should be built on top of a
+success metric that's mostly measuring target inflation.
+
+Separately: of 84 picks, 37 were direction-correct (44%) vs. 47 wrong (56%). At that sample
+size this is statistically indistinguishable from a coin flip (z≈−1.1, not significant) — the
+honest reading was "we cannot yet say the correlation rules have real edge, and we cannot say
+they don't." Not a verdict either way; a reason to measure rather than guess.
+
+**Fix applied:** `agents/morning-agent-prompt.md` STEP 3A now gives explicit target-sizing
+guidance (0.8%–1.8% typical, >2.5% reserved for genuinely exceptional catalysts) grounded in
+the measured realized-move distribution, instead of an unanchored "reasonable-sounding" number.
+This alone should move `hit_target` from "measures target inflation" toward "measures whether
+the call was actually good" — give it a few weeks of fresh data before trusting it again.
+
+### 17.3 The Metric: `direction_correct`, Not `hit_target`
+
+`hit_target` stays in the schema (dashboard accuracy stats still use it), but the strategy
+review scores sectors on `direction_correct` (§9) instead — "did the stock move the called way
+at all," independent of the magnitude-threshold noise described above. It's derived, not
+stored-and-trusted: the backtest computes it fresh from `actual_pct_change`/`target_pct` signs
+on every run, so it works identically on old picks (never had the field) and new ones (which do
+carry it going forward, for transparency on the dashboard if that's ever built).
+
+### 17.4 Bucketing: Sector, Not Individual Correlation Rule
+
+The morning prompt's rulebook (STEP 2, §A–L) has 20–30 named micro-rules ("crude falls →
+airlines bullish", etc.). At ~100 total picks, bucketing at that granularity means most buckets
+never reach a trustworthy sample size. Picks are bucketed by **sector** instead (Airlines, IT
+Services, Metals, …) via a static `SYMBOL_SECTOR` lookup table embedded in the backtest script,
+hand-extracted from the rulebook's own symbol lists — not AI-guessed, and not regenerated
+automatically, so it needs a manual update if the rulebook's symbol lists change materially.
+Unmapped symbols fall into an `"Unspecified"` bucket rather than erroring.
+
+### 17.5 Evidence Gating — Why There Is No Walk-Forward Split
+
+A proper train/validation split was considered and dropped: with ~4 new picks/week, a 2-week
+holdout is ~8 samples — not enough to validate anything, it would just be adding false rigor.
+Instead, every sector bucket is scored against the **full history to date**, with:
+
+- **`MIN_N = 8`** — buckets below this are left at weight `1.0` regardless of their point
+  estimate. A sector at 0/2 is not "worse" than one at 4/8; it's unmeasured.
+- **A 95% Wilson confidence interval**, not a bare win-rate. A sector only gets reweighted when
+  its *entire* CI sits above or below the overall baseline rate for that run — the CI
+  overlapping baseline means "no clear signal," explicitly, not silently rounded to neutral.
+- **Weight bounds `0.5`–`1.5`**, capping how much any single week's evidence can move the
+  needle.
+
+This recomputes from scratch each week rather than maintaining running/smoothed state — simpler
+than exponential decay, and the CI machinery already prevents a single noisy week from swinging
+a bucket, so there's nothing smoothing would add.
+
+### 17.6 Data Artifacts
+
+| Path | Written by | Shape |
+|---|---|---|
+| `data/strategy/rule_weights.json` | Relay `strategy` action (§5.2) | `{"generated_at": "<ISO timestamp, server-side>", "weights": {"<sector>": <0.5-1.5>, ...}}` |
+| `data/strategy/STRATEGY_NOTES.md` | Relay `strategy` action, **append-only** | One `## <date>` entry per review, oldest first. Never overwritten — it's the audit trail, including weeks where nothing changed. |
+
+Both live under `data/strategy/`, tracked in git like the rest of `data/`.
+
+### 17.7 The Weekly Agent
+
+`agents/strategy-agent-prompt.md` (gitignored, same credential pattern as morning/evening —
+Telegram token + chat ID + `RELAY_SECRET`, **no GitHub PAT**, consistent with §5's "the PAT
+lives in exactly one place"). Four steps:
+
+1. **Fixed backtest** (agent must not modify) — fetches `data/index.json` + every `data/*.json`
+   via `raw.githubusercontent.com`, computes the per-sector report described above, prints
+   `PROPOSED_WEIGHTS_JSON` plus a few verbatim miss examples per flagged sector.
+2. **Agent interprets** — may look at the printed miss examples for a flagged sector and note a
+   grounded pattern if one is visible (e.g. "misses cluster on the USD/INR rule specifically").
+   Defaults to accepting the mechanical proposal; overriding it needs a stated reason, not a
+   hunch — the evidence gate in step 1 already guards against small-sample noise.
+3. **Fixed write** (agent must not modify) — POSTs `{action:"strategy", rule_weights, notes_append}`
+   to the relay with the secret header, trusts the receipt's commit shas as ground truth (same
+   pattern as morning/evening post-F7, §13), writes `/tmp/gh_status.txt` on failure.
+4. **Telegram summary** — always sent, `⚠️` prepended on failure. Same "alert must never depend
+   on the thing that broke" rule as the daily agents.
+
+**Schedule:** Saturday 10:00 IST (`30 4 * * 6`), a non-trading day with a comfortable buffer
+before Monday 08:00. Creating this routine on claude.ai/code is a manual step — not automatable
+from here; paste the prompt file's contents the same way the morning/evening routines were set
+up (§15.3), update the routine-ID table below once created.
+
+| Routine | URL |
+|---|---|
+| Strategy review (weekly) | *not yet created — add the ID here once the routine exists* |
+
+### 17.8 The Morning Agent's Side: Reading the Weights
+
+`agents/morning-agent-prompt.md` STEP 2C (new, between the dynamic-analysis step and pick
+selection) reads `data/strategy/rule_weights.json` via `raw.githubusercontent.com`
+(cache-busted, same as the index-read pattern elsewhere), fails open to "no bias" if the file
+doesn't exist yet or the read fails, and is explicitly **guidance for judgment, not a hard
+filter** — a weight never blocks a pick, it shifts how much a borderline catalyst should lean
+toward or away from a sector with a measured track record.
+
+### 17.9 Honest Limits
+
+- **This will not visibly improve anything for weeks.** At ~100 samples and ~4/week, most
+  sectors sit below `MIN_N` for a long time yet. The infrastructure is built now; the payoff is
+  gradual by construction, not a switch that flips.
+- **The sector table is a one-time hand extraction**, not derived automatically — it will drift
+  from the rulebook if STEP 2's symbol lists change and nobody updates it. No automation
+  currently catches that drift.
+- **This system now actively optimizes pick accuracy.** That's a reversal of the original
+  product stance ("success is awareness, not the scoreboard") — see PRODUCT.md, updated
+  alongside this feature at the same time, same date.
+
+---
+
 *Stock Intelligence PA — Architecture Reference v1.0*
-*System operational since 2026-06-16. Architecture finalized 2026-07-03.*
+*System operational since 2026-06-16. Architecture finalized 2026-07-03. Strategy review loop added 2026-10-08.*
