@@ -266,10 +266,13 @@ Both agents run on **claude.ai/code routines** — Anthropic's scheduled cloud e
 
 **Execution steps inside the prompt:**
 
+0. **Holiday check** (added 2026-10-21, §13 F8) — today's IST date against a hardcoded 2026
+   NSE holiday table. On a match: one short Telegram message, stop — nothing past this point runs.
 1. **Fetch global snapshot** — Yahoo Finance JSON API for GIFT Nifty, S&P 500, Crude Oil, USD/INR, Gold
 2. **Fetch India news** — ET Markets RSS (economictimes.com) parsed via `urllib` in an inline Python heredoc
 3. **WebSearch** — FII/DII net flows from previous session, key macro events overnight
 4. **Sector correlation analysis** — Claude reasons over the data: crude change → energy/airline/paints impact; FII flow direction → broad market tone; USD/INR move → IT/pharma vs import-heavy sectors
+4.5. **Read strategy weights** (added 2026-10-08, §17.8) — `data/strategy/rule_weights.json` via raw.githubusercontent, fails open to no bias if absent/unreadable
 5. **JSON construction** — Output formatted as the per-day schema (see Section 9)
 6. **Write to GitHub** — Two-part block: Part A writes JSON to `/tmp/today_entry.json`; Part B reads it and POSTs to the Cloudflare Worker relay via `urllib.request`, trusting its receipt as ground truth (see §5.3, §13 F7)
 7. **Telegram** — Two messages sent inline: (1) market mood + snapshot + FII (2) sector outlook + top picks
@@ -287,12 +290,15 @@ Both agents run on **claude.ai/code routines** — Anthropic's scheduled cloud e
 
 **Execution steps inside the prompt:**
 
-1. **Read morning entry** — Fetches `https://raw.githubusercontent.com/gahlautabhinav/stock-intelligence/main/data/YYYY-MM-DD.json` (today's date computed inline). This path is not blocked by Anthropic's proxy.
+0. **Holiday check** (added 2026-10-21, §13 F8) — same table as the morning agent's Step 0,
+   checked *before* Step 1 so a holiday never even reaches the missing-file logic below.
+1. **Read morning entry** — Fetches `https://raw.githubusercontent.com/gahlautabhinav/stock-intelligence/main/data/YYYY-MM-DD.json` (today's date computed inline). This path is not blocked by Anthropic's proxy. Missing on an unlisted (non-holiday) date → Step 1B alert, not silence (§13 F3).
 2. **Fetch NSE closing prices** — For each pick symbol, tries three sources in order:
    - Yahoo Finance v8 API (`query1.finance.yahoo.com/v8/finance/chart/SYMBOL.NS`)
    - Yahoo Finance v7 API (`query1.finance.yahoo.com/v7/finance/quote?symbols=SYMBOL.NS`)
    - WebSearch fallback (`"SYMBOL NSE close price today"`)
-3. **Compute actuals** — Calculates `actual_pct_change`, sets `hit_target` boolean
+3. **Compute actuals** — Calculates `actual_pct_change`, `hit_target`, and `direction_correct`
+   booleans (the latter added 2026-10-08, §9, §17.3)
 4. **Write updated entry** — Two-part block, same pattern as morning
 5. **Send EOD Telegram** — Single message with accuracy summary
 
@@ -1078,6 +1084,47 @@ If all three fail, the pick's actual fields remain `null` and `hit_target` is no
 4. The dashboard shows a staleness banner once the newest briefing is 3+ trading days old, which also covers the case where the routine itself stops running and no agent is alive to send an alert.
 
 **Recovery:** rotate the token per §15.6. The next scheduled run recovers on its own; days in the gap are not recoverable, as the agents are stateless and nothing queues.
+
+---
+
+### F8: NSE holiday — no awareness, total silence
+
+**Symptom:** No morning brief, no Telegram message at all (not even an alert), and the evening
+agent correctly found nothing to update and correctly said nothing either — "correctly" by its
+own rule at the time, "silently" from the user's side, indistinguishable from a real failure.
+
+**This happened:** 2026-10-20 was Dussehra, an NSE trading holiday. The Mon–Fri cron schedule
+has no concept of exchange holidays, so the morning routine ran on schedule with zero
+instruction for "the market is closed today." Whatever happened inside that run — crashed
+early reasoning about stale/absent market data, or something else — left no trace on the
+GitHub side: `data/2026-10-20.json` was never created, meaning the failure (if it was one)
+happened before Step 5, earlier than every alert mechanism built for F3/F7 can reach. The
+evening agent's own `STATUS: NO_MORNING_BRIEF` rule then did exactly what it was told —
+"stop, do nothing" was correct for a genuine missing-brief case at the time, but gave no way
+to tell a holiday apart from an actual outage.
+
+**Frequency:** ~15 trading days a year (NSE's published holiday count), concentrated around
+major festivals — several in close succession around Diwali specifically.
+
+**Mitigation:** Both agents gained a **STEP 0**, run before anything else, checking today's IST
+date against an explicit, dated 2026 NSE holiday table (identical copy in both prompts — see
+each prompt's STEP 0 for the full list and sourcing). On a listed date, each agent sends one
+short, clearly non-alarming Telegram message (🎉, not ⚠️ — deliberately distinct from a failure
+alert) and stops before attempting any data gathering or GitHub write. The evening agent's
+missing-brief alert (F3 pattern) is now conditioned on Step 0 *not* already having explained
+the day — a holiday no longer triggers a false "write failed" alarm, but anything else missing
+still does, unconditionally.
+
+**Known limit, by design:** the table only catches *listed* closures. An unlisted or surprise
+closure (an emergency circuit halt, an unannounced exchange outage) still falls through to the
+old F3-era silent gap — deliberately: the safer default on an unrecognized date is to proceed
+normally (worst case, a slightly confused brief on a day markets turn out to be shut) rather
+than guess at a closure and risk skipping a real trading day.
+
+**Known limit, needs yearly maintenance:** the table is hardcoded per calendar year and will be
+empty — and therefore silently inert, not broken — for 2027 onward until manually refreshed.
+Nothing currently reminds anyone to do this; it will simply stop helping, the same way it never
+helped before 2026-10-21.
 
 ---
 
