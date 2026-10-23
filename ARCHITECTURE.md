@@ -297,6 +297,8 @@ Both agents run on **claude.ai/code routines** — Anthropic's scheduled cloud e
    - Yahoo Finance v8 API (`query1.finance.yahoo.com/v8/finance/chart/SYMBOL.NS`)
    - Yahoo Finance v7 API (`query1.finance.yahoo.com/v7/finance/quote?symbols=SYMBOL.NS`)
    - WebSearch fallback (`"SYMBOL NSE close price today"`)
+   - **Total failure** (every symbol *and* Nifty 50, not just one stock) → Step 2B: skip the
+     write entirely, alert, stay recoverable (added 2026-10-23, §13 F2)
 3. **Compute actuals** — Calculates `actual_pct_change`, `hit_target`, and `direction_correct`
    booleans (the latter added 2026-10-08, §9, §17.3)
 4. **Write updated entry** — Two-part block, same pattern as morning
@@ -1014,7 +1016,19 @@ These are immovable limitations of the current environment that shaped every des
 2. Yahoo Finance v7 quote API
 3. WebSearch (`"SYMBOL NSE closing price today"`)
 
-If all three fail, the pick's actual fields remain `null` and `hit_target` is not set. The dashboard renders these as "Pending".
+If all three fail for **one** symbol (others fine), that pick's actual fields remain `null`
+and `hit_target` is not set — the entry still writes, `eod_updated: true`, the dashboard
+renders that pick as "Pending".
+
+If all three fail for **every** symbol *and* the Nifty 50 fetch also fails (added 2026-10-23,
+evening prompt STEP 2B, after this happened for real on 2026-10-22 — Yahoo 429'd everything
+including the index itself) — that combination means a systemic data-source outage, not one
+bad ticker, and the entry is **not written at all**. `eod_updated` stays `false`, which is
+deliberately better than writing nulls across the board: a null-everywhere write with
+`eod_updated: true` would be permanently stuck "Pending" forever (the idempotency check at
+Step 1 blocks any future run from revisiting a day once `eod_updated` is `true`). Leaving it
+`false` keeps the day recoverable by a manual re-run once the data source is actually back.
+A `⚠️ EOD NOT SCORED` Telegram message explains why, instead of the usual recap.
 
 ---
 
