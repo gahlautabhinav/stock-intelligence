@@ -60,3 +60,19 @@ Decision: reviewed, no sector cleared the evidence bar. All weights unchanged at
 - OMC n=5, Metals n=4, Auto OEM n=3, Pharma n=3, Defense n=2, Large Cap/Broad Market n=1, Infra n=1, FMCG n=1, Logistics n=1 — insufficient data. No change.
 
 Decision: accepted the mechanical proposal. IT Services reweighted to 0.77x; all other sectors unchanged at 1.0x this week.
+
+## 2026-10-31
+
+**Backtest 2026-10-31: N=124 scored picks, overall direction accuracy 57/124 = 46.0%**
+
+- IT Services: 22% (4/18), CI [9%,45%] — stays below baseline, weight -> 0.76x.
+  All 3 miss examples are macro-driven calls (Nasdaq rally and/or USD/INR weakness at 94-96, one with an upcoming Q1 result) that did not produce the expected move. Suggests the USD/INR / Nasdaq tailwind rule is over-trusted for IT; worth revisiting the threshold at a future review, not acting on it yet.
+- Upstream Oil: 47% (n=30), CI [30%,64%] — overlaps baseline. No change.
+- Airlines: 60% (n=15), CI [36%,80%] — overlaps baseline. No change.
+- Paints: 50% (n=14), CI [27%,73%] — overlaps baseline. No change.
+- Private Banks: 56% (n=9), CI [27%,81%] — overlaps baseline. No change.
+- Gold-linked: 67% (n=9), CI [35%,88%] — overlaps baseline. No change.
+- Tyres: 38% (n=8), CI [14%,69%] — overlaps baseline. No change.
+- OMC n=5, Metals n=4, Auto OEM n=3, Pharma n=3, Defense n=2, Large Cap/Broad Market n=1, Infra n=1, FMCG n=1, Logistics n=1 — not enough data yet. No change.
+
+Decision: IT Services reweighted to 0.76x (mechanical proposal accepted). All other sectors unchanged at 1.0x this week.
