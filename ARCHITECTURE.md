@@ -999,9 +999,17 @@ These are immovable limitations of the current environment that shaped every des
 
 **Symptom:** Morning snapshot values missing or stale.
 
-**Frequency:** Rare (Yahoo Finance has high uptime but occasional rate-limit or maintenance windows).
+**Frequency:** Likely underestimated prior to 2026-11-06 — see F2's root cause. The same
+missing-`User-Agent` bug that caused 27% of evening EOD runs to fail almost certainly hit
+morning's snapshot fetches too, just less visibly: WebSearch can usually still find a major
+global macro figure (crude oil, S&P 500) same-day, which masked the underlying fetch failure
+in a way it couldn't for NSE small/mid-cap closing prices. "Rare" was never verified — the
+real frequency is unknown, because a masked failure doesn't show up as a missing field.
 
-**Mitigation:** The morning agent prompt instructs Claude to WebSearch for the value if the Yahoo API call returns an error. If all sources fail, the field is omitted (`null`) rather than blocking the entire brief.
+**Mitigation:** The morning agent prompt instructs Claude to WebSearch for the value if the
+Yahoo API call returns an error. If all sources fail, the field is omitted (`null`) rather
+than blocking the entire brief. STEP 1 and STEP 3B both now carry an explicit
+`User-Agent: Mozilla/5.0` requirement on every Yahoo fetch (added 2026-11-06, same fix as F2).
 
 ---
 
@@ -1009,18 +1017,41 @@ These are immovable limitations of the current environment that shaped every des
 
 **Symptom:** Evening agent cannot compute `actual_pct_change`.
 
-**Frequency:** Occasional — some NSE symbols have inconsistent Yahoo Finance coverage.
+**Frequency, corrected 2026-11-06:** this was never "occasional." A full scan of 67 trading
+days found **18 (27%) had a scoring problem**, worsening sharply from late October onward —
+5 of the 8 trading days immediately before this was found had failed completely. The original
+"occasional, inconsistent coverage" framing was wrong; there were two concrete, fixable bugs.
 
-**Mitigation:** Three-source fallback in evening prompt:
-1. Yahoo Finance v8 chart API
-2. Yahoo Finance v7 quote API
-3. WebSearch (`"SYMBOL NSE closing price today"`)
+**Root cause, found by testing live, not guessing:**
+1. **Yahoo's v7 quote endpoint is permanently dead.** `401 Unauthorized`, from every network
+   and header combination tried. Yahoo discontinued it — it was never a real fallback, it
+   always failed and just wasted a step before WebSearch.
+2. **Yahoo's v8 endpoint rejects any request with no `User-Agent` header** with an HTTP 429
+   that is indistinguishable from genuine rate-limiting in the response text, but isn't one —
+   it's an instant edge-level block. The evening prompt's fetch instructions never set one.
+   Confirmed by direct A/B test: identical URL, identical moment — no header → `429`;
+   `User-Agent: Mozilla/5.0` → clean `200` with real data, repeatably, across multiple symbols.
+3. **A second, independent, pre-existing bug found while fixing the first:** the parsing
+   instructions said to read the opening price from `meta.regularMarketOpen` — that field does
+   not exist in this endpoint's response at all, confirmed empty on every symbol tested. It
+   hadn't caused visible damage (a scan of all historical entries found zero picks with a real
+   `actual_close` but a null `actual_open`), most likely because the agent silently worked
+   around the instruction when it noticed the field was missing — the same kind of
+   undocumented improvisation that motivated formalizing STEP 2B. The real OHLC values are in
+   `indicators.quote[0].open`/`close`, not `meta`.
 
-If all three fail for **one** symbol (others fine), that pick's actual fields remain `null`
+**Mitigation:** evening prompt STEP 2 is now a fixed Python block (not prose + illustrative
+curl, which is partly how the missing header went unnoticed for this long) — Yahoo v8 with
+the header, correct field path, straight to WebSearch on failure. Two-source fallback instead
+of three; the dead v7 source was removed rather than kept as false reassurance:
+1. Yahoo Finance v8 chart API, with `User-Agent: Mozilla/5.0`
+2. WebSearch (`"SYMBOL NSE closing price today"`)
+
+If both fail for **one** symbol (others fine), that pick's actual fields remain `null`
 and `hit_target` is not set — the entry still writes, `eod_updated: true`, the dashboard
 renders that pick as "Pending".
 
-If all three fail for **every** symbol *and* the Nifty 50 fetch also fails (added 2026-10-23,
+If both fail for **every** symbol *and* the Nifty 50 fetch also fails (added 2026-10-23,
 evening prompt STEP 2B, after this happened for real on 2026-10-22 — Yahoo 429'd everything
 including the index itself) — that combination means a systemic data-source outage, not one
 bad ticker, and the entry is **not written at all**. `eod_updated` stays `false`, which is
