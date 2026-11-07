@@ -76,3 +76,19 @@ Decision: accepted the mechanical proposal. IT Services reweighted to 0.77x; all
 - OMC n=5, Metals n=4, Auto OEM n=3, Pharma n=3, Defense n=2, Large Cap/Broad Market n=1, Infra n=1, FMCG n=1, Logistics n=1 — not enough data yet. No change.
 
 Decision: IT Services reweighted to 0.76x (mechanical proposal accepted). All other sectors unchanged at 1.0x this week.
+
+## 2026-11-07
+
+**Backtest 2026-11-07: N=152 scored picks, overall direction accuracy 71/152 = 46.7%**
+
+- IT Services: 22% (4/18), CI [9%,45%] — entire interval below the 47% baseline, weight -> 0.76x.
+  The 3 printed miss examples (INFY 06-23, HCLTECH 07-10, INFY 07-14) all rest on a macro-currency or Nasdaq narrative (weak USD/INR, Nasdaq rally) that did not translate into the expected move; 2 of 3 are INFY with a rupee-weakness thesis. Only 3 examples were shown, so this is suggestive, not conclusive — worth revisiting the USD/INR and Nasdaq rules at a future review, not acting on yet.
+- Upstream Oil: 42% (14/33), CI [27%,59%] — overlaps baseline. No change.
+- Airlines: 62% (13/21), CI [41%,79%] — overlaps baseline. No change.
+- Paints: 50% (9/18), CI [29%,71%] — overlaps baseline. No change.
+- Tyres: 43% (6/14), CI [21%,67%] — overlaps baseline. No change.
+- Gold-linked: 67% (8/12), CI [39%,86%] — overlaps baseline. No change.
+- Private Banks: 56% (5/9), CI [27%,81%] — overlaps baseline. No change.
+- OMC n=6, Metals n=5, Pharma n=4, Auto OEM n=3, FMCG n=3, Defense n=2, Large Cap/Broad Market n=1, Infra n=1, Fertilizer n=1, Logistics n=1 — not enough data yet. No change.
+
+Decision: reweighted IT Services to 0.76x (mechanical proposal accepted). All other sectors unchanged this week; no other sector cleared the evidence bar.
