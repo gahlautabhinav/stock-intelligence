@@ -92,3 +92,39 @@ Decision: IT Services reweighted to 0.76x (mechanical proposal accepted). All ot
 - OMC n=6, Metals n=5, Pharma n=4, Auto OEM n=3, FMCG n=3, Defense n=2, Large Cap/Broad Market n=1, Infra n=1, Fertilizer n=1, Logistics n=1 — not enough data yet. No change.
 
 Decision: reweighted IT Services to 0.76x (mechanical proposal accepted). All other sectors unchanged this week; no other sector cleared the evidence bar.
+
+## 2026-11-14
+
+## Weekly strategy review — 2026-11-14
+
+**Backtest: N=159 scored picks, overall direction accuracy 76/159 = 47.8%**
+
+Gate: a sector moves only if n >= 8 and its 95% Wilson CI sits entirely above or entirely below the overall baseline. No sector cleared the gate this week.
+
+Sectors with enough data (n >= 8):
+- Upstream Oil: 43% (15/35), CI [28%,59%] — overlaps baseline. No change.
+- Airlines: 62% (13/21), CI [41%,79%] — overlaps baseline. No change.
+- IT Services: 30% (6/20), CI [15%,52%] — overlaps baseline, but only just (upper bound 52% vs baseline 48%). No change this week; this is the bucket most likely to flip to DEPRIORITIZE if the next few IT picks miss. Not acting on it until the gate clears.
+- Paints: 50% (9/18), CI [29%,71%] — overlaps baseline. No change.
+- Tyres: 43% (6/14), CI [21%,67%] — overlaps baseline. No change.
+- Gold-linked: 64% (9/14), CI [39%,84%] — overlaps baseline. No change.
+- Private Banks: 60% (6/10), CI [31%,83%] — overlaps baseline. No change.
+
+Sectors below the n >= 8 threshold (weight held at 1.0 by rule):
+- OMC: n=6, 50% (3/6). Not enough data yet.
+- Metals: n=5, 60% (3/5). Not enough data yet.
+- Pharma: n=4, 50% (2/4). Not enough data yet.
+- Auto OEM: n=3, 33% (1/3). Not enough data yet.
+- FMCG: n=3, 67% (2/3). Not enough data yet.
+- Defense: n=2, 0% (0/2). Not enough data yet.
+- Large Cap/Broad Market: n=1, 100% (1/1). Not enough data yet.
+- Infra: n=1, 0% (0/1). Not enough data yet.
+- Fertilizer: n=1, 0% (0/1). Not enough data yet.
+- Logistics: n=1, 0% (0/1). Not enough data yet.
+
+Observations (not acted on):
+- Overall direction accuracy of 47.8% is below a coin flip. That is a system-level finding, not a sector-level one, and the per-sector reweighting mechanism cannot fix it. Worth a human look at whether the morning agent's rulebook or the target_pct sign convention is systematically off.
+- Coverage is concentrated: Upstream Oil, Airlines, IT Services and Paints account for 94 of 159 scored picks (59%). Ten sectors have fewer than 8 samples, so most of the rulebook is still untested.
+- Nothing was flagged BOOST or DEPRIORITIZE, so no MISS_EXAMPLE lines were printed and no catalyst-level pattern review was possible this week.
+
+Decision: reviewed, no sector cleared the evidence bar. All 17 reported sectors held at 1.0x.
