@@ -268,7 +268,7 @@ Both agents run on **claude.ai/code routines** — Anthropic's scheduled cloud e
 
 0. **Holiday check** (added 2026-10-21, §13 F8) — today's IST date against a hardcoded 2026
    NSE holiday table. On a match: one short Telegram message, stop — nothing past this point runs.
-1. **Fetch global snapshot** — Yahoo Finance JSON API for GIFT Nifty, S&P 500, Crude Oil, USD/INR, Gold
+1. **Fetch global snapshot** — Yahoo Finance JSON API for GIFT Nifty, S&P 500, Crude Oil, USD/INR, Gold, India VIX
 2. **Fetch India news** — ET Markets RSS (economictimes.com) parsed via `urllib` in an inline Python heredoc
 3. **WebSearch** — FII/DII net flows from previous session, key macro events overnight
 4. **Sector correlation analysis** — Claude reasons over the data: crude change → energy/airline/paints impact; FII flow direction → broad market tone; USD/INR move → IT/pharma vs import-heavy sectors
@@ -581,7 +581,10 @@ app.js — ~700 lines, organized as:
 │   ├── renderCharts() — entry point (lazy: only fires when Performance tab active)
 │   ├── renderSnapshotChart() — line chart per macro metric
 │   ├── makeChart() — factory with theme-aware config
-│   └── renderSectorHeatmap() — CSS table grid (not LightweightCharts)
+│   └── renderSectorHeatmap() — CSS table grid (not LightweightCharts); reads
+│       loadSectorWeights()'s sectorWeights state, buckets via the dashboard's own
+│       SYMBOL_SECTOR copy (weightCell/trackCell), and groups rows via
+│       normalizeSector()/SECTOR_ALIAS_RULES (see §17.4)
 └── Helpers (todayStr, fmtDate, fmtTime, calcAccuracy, updateMarketStatus)
 ```
 
@@ -617,7 +620,7 @@ LightweightCharts uses `autoSize: true` to fill its container. When the Performa
 |-----|---------|-------------|
 | Today | Today's full brief (mood, FII, snapshot, news, sectors, picks, EOD results if available) | `briefings.find(x => x.date === todayStr()) \|\| briefings[0]` |
 | History | Collapsible rows for all past days, sorted descending | All `briefings[]`, mapped to expandable rows |
-| Performance | Aggregate stats (win rate, avg move), per-stock table, macro trend charts, sector heatmap | Computed from all `briefings[]` |
+| Performance | Aggregate stats (win rate, avg move), per-stock table, macro trend charts, sector outlook tracker (last 10 trading days + full-history Weight/Track Record per sector) | Computed from all `briefings[]`; Weight from `data/strategy/rule_weights.json` |
 
 ### 7.6 Market Status Indicator
 
@@ -736,7 +739,8 @@ Avg actual move: +1.1%
     "sp500":      { "value": 5890,   "change_pct": 0.31  },
     "crude_oil":  { "value": 78.5,   "change_pct": -1.20 },
     "usd_inr":    { "value": 83.40,  "change_pct": 0.05  },
-    "gold":       { "value": 2340,   "change_pct": 0.20  }
+    "gold":       { "value": 2340,   "change_pct": 0.20  },
+    "india_vix":  { "value": 14.2,   "change_pct": -1.1, "regime": "NORMAL" }
   },
 
   "fii": {
@@ -795,9 +799,10 @@ Avg actual move: +1.1%
 |-------|------|--------|-------|
 | `date` | string | Morning agent | ISO 8601 date `YYYY-MM-DD` |
 | `day` | string | Morning agent | Full weekday name |
-| `snapshot.*` | object | Morning agent | All five macro indicators |
+| `snapshot.*` | object | Morning agent | Macro indicators (GIFT Nifty, S&P 500, Crude, USD/INR, Gold, India VIX) |
 | `snapshot.*.value` | number | Morning agent | Absolute price |
 | `snapshot.*.change_pct` | number | Morning agent | % change from prior close |
+| `snapshot.india_vix.regime` | string | Morning agent | `LOW`/`NORMAL`/`ELEVATED`/`EXTREME` — fixed bands, see morning-agent-prompt.md "Volatility Regime" |
 | `fii.net_cr` | number | Morning agent | FII net in crores (positive = buying) |
 | `fii.direction` | string | Morning agent | `"buying"` or `"selling"` |
 | `news[]` | array | Morning agent | 3–5 items typical |
@@ -1500,6 +1505,16 @@ Services, Metals, …) via a static `SYMBOL_SECTOR` lookup table embedded in the
 hand-extracted from the rulebook's own symbol lists — not AI-guessed, and not regenerated
 automatically, so it needs a manual update if the rulebook's symbol lists change materially.
 Unmapped symbols fall into an `"Unspecified"` bucket rather than erroring.
+
+The dashboard's Performance tab (`docs/app.js`) carries an identical `SYMBOL_SECTOR` copy,
+JS-side, to compute the same per-sector Track Record directly in the browser rather than
+shipping a precomputed backend file. It must be kept in sync by hand with the backtest's table
+— both files say so in a comment at the table's definition. The dashboard additionally
+normalizes the morning brief's free-text `sector_outlook[].sector` strings (which aren't drawn
+from this table — they're the LLM's own daily wording, e.g. "OMC (HPCL/BPCL/IOC)") onto this
+same canonical vocabulary via `normalizeSector()`, so the sector heatmap's row labels and its
+Weight/Track Record columns refer to the same sector even though they come from different
+underlying data.
 
 ### 17.5 Evidence Gating — Why There Is No Walk-Forward Split
 

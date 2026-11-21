@@ -320,6 +320,17 @@ main {
 .snap-change.down { color: var(--dn); }
 .snap-change.flat { color: var(--body); }
 
+.snap-regime {
+  font-family: var(--ff-ui);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+.snap-regime.down { color: var(--dn); }
+.snap-regime.flat { color: var(--body); }
+
 /* ── News ────────────────────────────────────────── */
 .news-list { margin-bottom: var(--s8); }
 
@@ -944,6 +955,27 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .hm-bull        { background: var(--up-bg);   color: var(--up); }
 .hm-bear        { background: var(--dn-bg);   color: var(--dn); }
 .hm-neut        { background: var(--canvas-s); color: var(--body); }
+
+/* Weight + Track Record — the two columns that turn this from a long log into
+   something you'd actually use to size a day's conviction per sector. */
+.hm-weight-col, .hm-track-col { min-width: 76px; text-align: center; }
+.hm-weight      { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hm-weight-up   { color: var(--up); }
+.hm-weight-dn   { color: var(--dn); }
+.hm-weight-neutral { color: var(--hairline); font-weight: 400; }
+.hm-track       { text-align: center; font-variant-numeric: tabular-nums; cursor: default; }
+.hm-track-good  { color: var(--up); font-weight: 700; }
+.hm-track-mid   { color: var(--body); font-weight: 600; }
+.hm-track-poor  { color: var(--dn); font-weight: 700; }
+.hm-track-thin  { color: var(--hairline); font-weight: 400; }
+.hm-track-n     { font-size: 9px; color: var(--body); font-weight: 400; margin-left: 2px; }
+
+.hm-footnote {
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  color: var(--body);
+  margin-top: var(--s8);
+}
 
 /* ── Dark Mode ───────────────────────────────────── */
 @media (prefers-color-scheme: dark) {

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#ffffff"/>
+  <!-- Three solid ascending bars, bold and widely spaced — simplified from an earlier
+       candlestick design that mushed into a blob at 16px. A favicon lives or dies at
+       that size; thin strokes don't survive it, solid geometry does. -->
+  <rect x="4"  y="18" width="7" height="10" fill="#000"/>
+  <rect x="13" y="10" width="7" height="18" fill="#000"/>
+  <rect x="22" y="3"  width="7" height="25" fill="#000"/>
+</svg>

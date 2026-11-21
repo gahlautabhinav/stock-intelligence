@@ -9,16 +9,32 @@ const STALE_WEEKDAYS = 3;  // weekdays, not calendar days — a Fri→Mon gap is
 // ── State ────────────────────────────────────────────────────
 let briefings = [];
 const _charts  = {};
+let sectorWeights = {};  // {sector: multiplier}, from the weekly strategy review — see loadSectorWeights()
 
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
   setupTheme();
   loadData();
+  loadSectorWeights();
   setInterval(loadData, REFRESH_MS);
   updateMarketStatus();
   setInterval(updateMarketStatus, 60_000);
 });
+
+// Fire-and-forget: the weekly strategy review's sector-confidence weights (ARCHITECTURE.md
+// §17). Non-fatal by design — the file may not exist yet, or the fetch may fail, and the
+// Sector Outlook table must render fine either way with every sector just showing "—".
+async function loadSectorWeights() {
+  try {
+    const res = await fetch(`${BASE_RAW}/data/strategy/rule_weights.json?t=${Date.now()}`);
+    if (!res.ok) return;
+    const doc = await res.json();
+    sectorWeights = doc.weights || {};
+  } catch (e) {
+    // stays {} — renderSectorHeatmap() treats a missing entry as "no weight yet", not an error
+  }
+}
 
 // ── Theme ─────────────────────────────────────────────────────
 function setupTheme() {
@@ -319,6 +335,12 @@ function renderFIIBanner(fii) {
   `;
 }
 
+// India VIX: a RISING value is bad news (more expected volatility), not good — the
+// generic "up = green" convention every other snapshot card uses would be actively
+// misleading here. Color by regime instead, which is already classified server-side
+// (morning-agent-prompt.md "Volatility Regime"), not re-derived from the change sign.
+const VIX_REGIME_CLASS = { LOW: 'flat', NORMAL: 'flat', ELEVATED: 'down', EXTREME: 'down' };
+
 function renderSnapshot(snap) {
   if (!snap) return '';
   const items = [
@@ -327,19 +349,25 @@ function renderSnapshot(snap) {
     { label: 'Crude Oil',  val: snap.crude_oil,   fmt: v => '$' + v.toFixed(1),        unit: '/bbl' },
     { label: 'USD / INR',  val: snap.usd_inr,     fmt: v => '₹' + v.toFixed(2),        unit: '' },
     { label: 'Gold',       val: snap.gold,         fmt: v => '$' + v.toLocaleString(),  unit: '/oz' },
+    { label: 'India VIX',  val: snap.india_vix,    fmt: v => v.toFixed(1),             unit: '', isVix: true },
   ];
   return `
     <div class="snapshot-grid">
       ${items.map(i => {
         if (!i.val) return '';
         const chg = i.val.change_pct;
-        const cls   = chg > 0.05 ? 'up' : chg < -0.05 ? 'down' : 'flat';
+        const cls   = i.isVix
+          ? (VIX_REGIME_CLASS[i.val.regime] || 'flat')
+          : (chg > 0.05 ? 'up' : chg < -0.05 ? 'down' : 'flat');
         const arrow = chg > 0.05 ? '+' : chg < -0.05 ? '−' : '';
+        const sub = i.isVix && i.val.regime && i.val.regime !== 'NORMAL'
+          ? `<div class="snap-regime ${cls}">${i.val.regime}</div>` : '';
         return `
           <div class="snap-card">
             <div class="snap-label">${i.label}</div>
             <div class="snap-value">${i.val.value != null ? i.fmt(i.val.value) + i.unit : '—'}</div>
             <div class="snap-change ${cls}">${arrow}${chg != null ? Math.abs(chg).toFixed(2) + '%' : ''}</div>
+            ${sub}
           </div>
         `;
       }).join('')}
@@ -574,34 +602,184 @@ function renderCharts() {
   renderSectorHeatmap();
 }
 
+// Same mapping as the backtest's SYMBOL_SECTOR table in agents/strategy-agent-prompt.md
+// STEP 1 — keep both in sync. If this drifts, the dashboard's win-rate column and the
+// weekly review's own weights stop agreeing with each other, which is worse than either
+// being wrong alone.
+const SYMBOL_SECTOR = {
+  INDIGO: 'Airlines', SPICEJET: 'Airlines',
+  ASIANPAINT: 'Paints', BERGEPAINT: 'Paints', KANSAINER: 'Paints', AKZONOBEL: 'Paints',
+  MRF: 'Tyres', APOLLOTYRE: 'Tyres', CEATLTD: 'Tyres', BALKRISIND: 'Tyres',
+  MARUTI: 'Auto OEM', TATAMOTORS: 'Auto OEM', 'M&M': 'Auto OEM', 'BAJAJ-AUTO': 'Auto OEM', HEROMOTOCO: 'Auto OEM',
+  DELHIVERY: 'Logistics', BLUEDART: 'Logistics', CONCOR: 'Logistics',
+  PIDILITIND: 'Chemicals', TATACHEMICALS: 'Chemicals',
+  HINDUNILVR: 'FMCG', ITC: 'FMCG', MARICO: 'FMCG', DABUR: 'FMCG', NESTLEIND: 'FMCG', BRITANNIA: 'FMCG', EMAMILTD: 'FMCG',
+  SUPREMEIND: 'Plastics/Packaging', ASTRAL: 'Plastics/Packaging', NILKAMAL: 'Plastics/Packaging',
+  HPCL: 'OMC', BPCL: 'OMC', IOC: 'OMC',
+  ONGC: 'Upstream Oil', OIL: 'Upstream Oil',
+  GAIL: 'Gas', IGL: 'Gas', MGL: 'Gas',
+  TCS: 'IT Services', INFY: 'IT Services', WIPRO: 'IT Services', HCLTECH: 'IT Services',
+  TECHM: 'IT Services', MPHASIS: 'IT Services', COFORGE: 'IT Services', LTTS: 'IT Services', PERSISTENT: 'IT Services',
+  SUNPHARMA: 'Pharma', DRREDDY: 'Pharma', CIPLA: 'Pharma', DIVISLAB: 'Pharma',
+  AUROPHARMA: 'Pharma', LUPIN: 'Pharma', BIOCON: 'Pharma',
+  TATASTEEL: 'Metals', HINDALCO: 'Metals', VEDL: 'Metals', JSWSTEEL: 'Metals',
+  SAIL: 'Metals', JINDALSTEL: 'Metals', NATIONALUM: 'Metals', HINDCOPPER: 'Metals',
+  PAGEIND: 'Textiles', WELSPUNLIV: 'Textiles', RAYMOND: 'Textiles',
+  MUTHOOTFIN: 'Gold-linked', TITAN: 'Gold-linked', MANAPPURAM: 'Gold-linked',
+  HDFCBANK: 'Private Banks', ICICIBANK: 'Private Banks', AXISBANK: 'Private Banks',
+  KOTAKBANK: 'Private Banks', INDUSINDBK: 'Private Banks', FEDERALBNK: 'Private Banks',
+  SBIN: 'PSU Banks', BANKBARODA: 'PSU Banks', CANARABANK: 'PSU Banks',
+  BAJFINANCE: 'NBFCs', BAJAJFINSV: 'NBFCs', LTFH: 'NBFCs', AAVAS: 'NBFCs', HOMEFIRST: 'NBFCs',
+  LICHSGFIN: 'Housing Finance', PNBHOUSING: 'Housing Finance', CANFINHOME: 'Housing Finance',
+  DLF: 'Real Estate', GODREJPROP: 'Real Estate', LODHA: 'Real Estate', PRESTIGE: 'Real Estate',
+  BRIGADE: 'Real Estate', SUNTECK: 'Real Estate', SOBHA: 'Real Estate',
+  VOLTAS: 'Consumer Durables', WHIRLPOOL: 'Consumer Durables', HAVELLS: 'Consumer Durables', POLYCAB: 'Consumer Durables',
+  COALINDIA: 'Mining',
+  'L&T': 'Capital Goods', SIEMENS: 'Capital Goods', ABB: 'Capital Goods', BHEL: 'Capital Goods',
+  THERMAX: 'Capital Goods', CUMMINSIND: 'Capital Goods',
+  IRCON: 'Infra', RITES: 'Infra', RVNL: 'Infra', KEC: 'Infra', KALPATPOWER: 'Infra',
+  ULTRACEMCO: 'Cement', AMBUJACEM: 'Cement', ACCLTD: 'Cement', SHREECEM: 'Cement', DALMIACEM: 'Cement',
+  POWERGRID: 'Power', NTPC: 'Power', TATAPOWER: 'Power', ADANIPOWER: 'Power', TORNTPOWER: 'Power',
+  HAL: 'Defense', BEL: 'Defense', BEML: 'Defense', MIDHANI: 'Defense',
+  MTAR: 'Defense', COCHINSHIP: 'Defense', MAZDOCK: 'Defense', GARDNRAERO: 'Defense',
+  BHARTIARTL: 'Telecom', IDEA: 'Telecom', TATACOMM: 'Telecom',
+  COROMANDEL: 'Fertilizer', NFL: 'Fertilizer', CHAMBERFL: 'Fertilizer', DEEPAKFERT: 'Fertilizer', GNFC: 'Fertilizer',
+  ESCORTS: 'Farm Equipment', SONACOMS: 'Farm Equipment',
+  BANDHANBNK: 'Rural/Small Finance Banks', UJJIVANSF: 'Rural/Small Finance Banks',
+  TRENT: 'Retail', DMART: 'Retail', ABFRL: 'Retail', SHOPPERSSTOP: 'Retail',
+  RELIANCE: 'Large Cap/Broad Market',
+};
+
+// sector_outlook[].sector is free text the morning agent writes fresh each day — NOT a
+// controlled vocabulary. 76 days of real data produced 108 distinct strings for ~28 actual
+// sectors ("OMC", "OMC (HPCL/BPCL/IOC)", "OMC/Upstream", "OMCs"... eleven OMC variants
+// alone). Grouping on the raw string was the OTHER reason this panel was unmanageable —
+// not just too many date columns, but dozens of near-duplicate near-empty rows. Tested
+// against every one of the 108 real variants on record before shipping; 0 unmatched.
+const SECTOR_ALIAS_RULES = [
+  [/airlin/i, 'Airlines'],
+  [/paint/i, 'Paints'],
+  [/tyre|rubber/i, 'Tyres'],
+  [/auto/i, 'Auto OEM'],
+  [/logistic/i, 'Logistics'],
+  [/jewell/i, 'Gold-linked'],
+  [/gold/i, 'Gold-linked'],
+  [/housing/i, 'Housing Finance'],
+  [/\bpsu\b.*bank|bank.*\bpsu\b/i, 'PSU Banks'],
+  [/private|\bpvt\b/i, 'Private Banks'],
+  [/nbfc|hfc/i, 'NBFCs'],
+  [/\bbank/i, 'Banking (Broad)'],  // generic/undifferentiated "Banking" calls — no stock-level track record exists for this bucket by design, see weightCell/trackCell
+  [/chemical/i, 'Chemicals'],
+  [/fmcg/i, 'FMCG'],
+  [/fertiliz/i, 'Fertilizer'],
+  [/it services|information tech/i, 'IT Services'],
+  [/pharma/i, 'Pharma'],
+  [/\bomcs?\b|oil market|downstream.*oil|refin/i, 'OMC'],
+  [/upstream|\bong?c\b|e&p/i, 'Upstream Oil'],
+  [/\bgas\b|city gas|\bcgd\b/i, 'Gas'],
+  [/oil\s*&\s*gas|oil and gas/i, 'OMC'],
+  [/metal|mining|steel/i, 'Metals'],
+  [/textile|export/i, 'Textiles'],
+  [/real estate/i, 'Real Estate'],
+  [/infra|railway/i, 'Capital Goods/Infra'],
+  [/capital goods/i, 'Capital Goods/Infra'],
+  [/defen[cs]e/i, 'Defense'],
+  [/telecom/i, 'Telecom'],
+  [/exchange/i, 'Exchange Ecosystem'],
+  [/tata group/i, 'Large Cap/Broad Market'],
+  [/conglomerate|reliance/i, 'Large Cap/Broad Market'],
+  [/midcap|smallcap/i, 'Broad Market'],
+  [/broad market/i, 'Broad Market'],
+];
+
+// One raw string can cover several sectors ("Airlines / Paints / Tyres" is a single
+// compound call) — split on common separators, classify each part independently, and
+// return every sector that matched (deduped). An unrecognized fragment is silently
+// dropped rather than crashing the render; see the rules above for coverage.
+function normalizeSector(raw) {
+  if (!raw) return [];
+  const parts = raw.split(/\s*(?:\/|&|,| and )\s*/i);
+  const out = new Set();
+  for (const part of parts) {
+    const p = part.trim();
+    if (!p) continue;
+    const hit = SECTOR_ALIAS_RULES.find(([re]) => re.test(p));
+    if (hit) out.add(hit[1]);
+  }
+  return [...out];
+}
+
+const RECENT_DAYS = 10;  // was unbounded (every day ever) — 100+ columns is what made this panel "very long"
+
 function renderSectorHeatmap() {
   const el = document.getElementById('sector-heatmap');
   if (!el) return;
 
-  // Collect all unique sectors across all briefings
   const allSectors = [...new Set(
-    briefings.flatMap(b => (b.sector_outlook || []).map(s => s.sector))
+    briefings.flatMap(b => (b.sector_outlook || []).flatMap(s => normalizeSector(s.sector)))
   )].sort();
 
-  const dates = briefings
-    .map(b => b.date)
-    .sort((a, b) => a.localeCompare(b));
+  const dates = briefings.map(b => b.date).sort((a, b) => a.localeCompare(b));
+  const recentDates = dates.slice(-RECENT_DAYS);
 
   if (!allSectors.length || !dates.length) {
     el.innerHTML = '<div class="empty">Sector data accumulates from daily briefings.</div>';
     return;
   }
 
-  // Build lookup: sectorOutlooks[date][sector] = outlook
   const lookup = {};
   briefings.forEach(b => {
     lookup[b.date] = {};
-    (b.sector_outlook || []).forEach(s => { lookup[b.date][s.sector] = s.outlook; });
+    (b.sector_outlook || []).forEach(s => {
+      // A compound call ("Airlines/Paints/Tyres") registers the same outlook against
+      // every sector it names.
+      normalizeSector(s.sector).forEach(sector => { lookup[b.date][sector] = s.outlook; });
+    });
+  });
+
+  // Track record: direction_correct across ALL history (not just the recent window — a
+  // win-rate estimate wants every sample it can get), bucketed by sector via SYMBOL_SECTOR.
+  // Same metric and same MIN_N=8 evidence gate as the weekly strategy review, so a sector
+  // can't show "66% win rate" here while the backend still calls it "insufficient data."
+  const MIN_N = 8;
+  const track = {};
+  briefings.forEach(b => {
+    (b.picks || []).forEach(p => {
+      // Derived fresh, same as the backend backtest (agents/strategy-agent-prompt.md) —
+      // NOT read from the stored direction_correct field, which only exists on picks
+      // scored after 2026-10-08. Deriving it here instead of trusting the field works on
+      // every historical pick, pre- and post-, same as the backend already does.
+      const actual = p.actual_pct_change, target = p.target_pct;
+      if (actual == null || target == null || actual === 0 || target === 0) return;
+      const directionCorrect = (actual > 0) === (target > 0);
+      const sector = SYMBOL_SECTOR[(p.symbol || '').toUpperCase()];
+      if (!sector) return;
+      (track[sector] ??= { n: 0, hits: 0 });
+      track[sector].n++;
+      if (directionCorrect) track[sector].hits++;
+    });
   });
 
   const shortDate = d => {
     const dt = new Date(d + 'T00:00:00');
     return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  };
+
+  const weightCell = sector => {
+    const w = sectorWeights[sector];
+    if (w == null || w === 1) return '<td class="hm-weight hm-weight-neutral">—</td>';
+    const cls = w > 1 ? 'hm-weight-up' : 'hm-weight-dn';
+    return `<td class="hm-weight ${cls}">${w.toFixed(2)}×</td>`;
+  };
+
+  const trackCell = sector => {
+    const t = track[sector];
+    if (!t || t.n < MIN_N) {
+      return `<td class="hm-track hm-track-thin" title="${t ? t.n : 0} sample(s) — below the evidence floor (${MIN_N})">—</td>`;
+    }
+    const rate = Math.round(t.hits / t.n * 100);
+    const cls = rate >= 60 ? 'hm-track-good' : rate < 40 ? 'hm-track-poor' : 'hm-track-mid';
+    return `<td class="hm-track ${cls}" title="${t.hits}/${t.n} direction-correct calls">${rate}% <span class="hm-track-n">n=${t.n}</span></td>`;
   };
 
   el.innerHTML = `
@@ -610,14 +788,18 @@ function renderSectorHeatmap() {
         <thead>
           <tr>
             <th class="hm-sector-col">Sector</th>
-            ${dates.map(d => `<th class="hm-date-col">${shortDate(d)}</th>`).join('')}
+            <th class="hm-weight-col" title="Confidence multiplier from the weekly strategy review (ARCHITECTURE.md §17). Only set once a sector clears the evidence bar.">Weight</th>
+            <th class="hm-track-col" title="Direction-correct rate across this sector's full history. Needs 8+ samples before it's shown.">Track Record</th>
+            ${recentDates.map(d => `<th class="hm-date-col">${shortDate(d)}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
-          ${allSectors.map(sector => `
+          ${[...allSectors].sort((a, b) => (track[b]?.n || 0) - (track[a]?.n || 0) || a.localeCompare(b)).map(sector => `
             <tr>
               <td class="hm-sector-name">${sector}</td>
-              ${dates.map(d => {
+              ${weightCell(sector)}
+              ${trackCell(sector)}
+              ${recentDates.map(d => {
                 const outlook = lookup[d]?.[sector];
                 if (!outlook) return `<td class="hm-cell hm-empty">—</td>`;
                 const cls = outlook === 'BULLISH' ? 'hm-bull' : outlook === 'BEARISH' ? 'hm-bear' : 'hm-neut';
@@ -628,6 +810,7 @@ function renderSectorHeatmap() {
         </tbody>
       </table>
     </div>
+    <p class="hm-footnote">Showing the last ${Math.min(RECENT_DAYS, dates.length)} of ${dates.length} trading days. Weight and Track Record both use the full history — Track Record is the raw rate, Weight only moves once that rate clears a statistical bar against the overall average, so a sector can show a real rate here while Weight still reads "—".</p>
   `;
 }
 
