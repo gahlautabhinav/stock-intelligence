@@ -977,6 +977,38 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   margin-top: var(--s8);
 }
 
+/* ── Sector Correlation ─────────────────────────────
+   Reuses .hm-track-good/mid/poor and .hm-track-n from the Sector Outlook Tracker above —
+   same "how much do you trust this number" color language, not a new one. */
+.corr-cols {
+  display: flex;
+  gap: var(--s24);
+  flex-wrap: wrap;
+}
+.corr-col { flex: 1; min-width: 240px; }
+.corr-col-label {
+  font-family: var(--ff-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: var(--s8);
+}
+.corr-table { width: 100%; border-collapse: collapse; }
+.corr-table td {
+  padding: var(--s8) 0;
+  border-bottom: 1px solid var(--hairline);
+  font-family: var(--ff-ui);
+  font-size: 13px;
+}
+.corr-pair { color: var(--ink); }
+.corr-x { color: var(--hairline); margin: 0 2px; }
+.corr-rate {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 /* ── Dark Mode ───────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {

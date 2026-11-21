@@ -11,7 +11,7 @@ Editorial intelligence-briefing design (Wired-inspired), dark/light mode toggle:
 - Sector outlook grid (BULLISH / BEARISH / NEUTRAL per sector)
 - Pick cards with watch zone, stop loss, target, and actual outcome once market closes
 - History tab: every past briefing, expandable
-- Performance tab: per-stock win rate, avg move, TradingView charts (5 metrics), sector heatmap
+- Performance tab: per-stock win rate, avg move, TradingView charts (6 metrics incl. FII flow), sector outlook tracker with correlation map
 
 ## Schedule
 

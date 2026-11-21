@@ -579,12 +579,16 @@ app.js — ~700 lines, organized as:
 │   └── renderRisks()
 ├── Charts (LightweightCharts)
 │   ├── renderCharts() — entry point (lazy: only fires when Performance tab active)
-│   ├── renderSnapshotChart() — line chart per macro metric
+│   ├── renderSnapshotChart() — line chart per macro metric; FII renders as a zero-centered
+│   │   histogram instead (signed flow, not a price level) via METRICS.fii.isFlow
 │   ├── makeChart() — factory with theme-aware config
-│   └── renderSectorHeatmap() — CSS table grid (not LightweightCharts); reads
-│       loadSectorWeights()'s sectorWeights state, buckets via the dashboard's own
-│       SYMBOL_SECTOR copy (weightCell/trackCell), and groups rows via
-│       normalizeSector()/SECTOR_ALIAS_RULES (see §17.4)
+│   ├── renderSectorHeatmap() — CSS table grid (not LightweightCharts); reads
+│   │   loadSectorWeights()'s sectorWeights state, buckets via the dashboard's own
+│   │   SYMBOL_SECTOR copy (weightCell/trackCell), and groups rows via
+│   │   normalizeSector()/SECTOR_ALIAS_RULES (see §17.4)
+│   └── renderSectorCorrelation() — pairwise sector agreement on BULLISH/BEARISH outlook
+│       days, via computeSectorCorrelations(); flags sector pairs that are "the same bet
+│       twice" vs genuine hedge pairs, MIN_PAIR_N=6
 └── Helpers (todayStr, fmtDate, fmtTime, calcAccuracy, updateMarketStatus)
 ```
 
@@ -620,7 +624,7 @@ LightweightCharts uses `autoSize: true` to fill its container. When the Performa
 |-----|---------|-------------|
 | Today | Today's full brief (mood, FII, snapshot, news, sectors, picks, EOD results if available) | `briefings.find(x => x.date === todayStr()) \|\| briefings[0]` |
 | History | Collapsible rows for all past days, sorted descending | All `briefings[]`, mapped to expandable rows |
-| Performance | Aggregate stats (win rate, avg move), per-stock table, macro trend charts, sector outlook tracker (last 10 trading days + full-history Weight/Track Record per sector) | Computed from all `briefings[]`; Weight from `data/strategy/rule_weights.json` |
+| Performance | Aggregate stats (win rate, avg move), per-stock table, macro trend charts (incl. FII net flow), sector outlook tracker (last 10 trading days + full-history Weight/Track Record per sector), sector correlation (move-together / hedge pairs) | Computed from all `briefings[]`; Weight from `data/strategy/rule_weights.json` |
 
 ### 7.6 Market Status Indicator
 

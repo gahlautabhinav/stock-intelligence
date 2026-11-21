@@ -292,6 +292,7 @@ function renderStats() {
       <button class="chart-btn" data-metric="gold">Gold</button>
       <button class="chart-btn" data-metric="usd_inr">USD/INR</button>
       <button class="chart-btn" data-metric="gift_nifty">GIFT Nifty</button>
+      <button class="chart-btn" data-metric="fii">FII Flow</button>
     </div>
     <div id="chart-snapshot-trend" class="chart-box"></div>
 
@@ -302,6 +303,10 @@ function renderStats() {
     <hr class="section-rule">
     <div class="eyebrow">Sector Outlook Tracker</div>
     <div id="sector-heatmap" class="sector-heatmap-wrap"></div>
+
+    <hr class="section-rule">
+    <div class="eyebrow">Sector Correlation</div>
+    <div id="sector-correlation" class="sector-correlation-wrap"></div>
   `;
 }
 
@@ -497,11 +502,19 @@ function renderRisks(risks) {
 let _activeMetric = 'crude_oil';
 
 const METRICS = {
-  crude_oil:  { label: 'Crude Oil',  key: 'crude_oil',  color: '#f59e0b', fmt: v => '$' + v.toFixed(2) },
-  sp500:      { label: 'S&P 500',    key: 'sp500',       color: '#3b82f6', fmt: v => v.toLocaleString('en-US') },
-  gold:       { label: 'Gold',       key: 'gold',        color: '#a855f7', fmt: v => '$' + v.toLocaleString('en-US') },
-  usd_inr:    { label: 'USD/INR',    key: 'usd_inr',     color: '#06b6d4', fmt: v => '₹' + v.toFixed(2) },
-  gift_nifty: { label: 'GIFT Nifty', key: 'gift_nifty',  color: '#ec4899', fmt: v => v.toLocaleString('en-IN') },
+  crude_oil:  { label: 'Crude Oil',  color: '#f59e0b', fmt: v => '$' + v.toFixed(2),              get: b => b.snapshot?.crude_oil?.value },
+  sp500:      { label: 'S&P 500',    color: '#3b82f6', fmt: v => v.toLocaleString('en-US'),        get: b => b.snapshot?.sp500?.value },
+  gold:       { label: 'Gold',       color: '#a855f7', fmt: v => '$' + v.toLocaleString('en-US'),  get: b => b.snapshot?.gold?.value },
+  usd_inr:    { label: 'USD/INR',    color: '#06b6d4', fmt: v => '₹' + v.toFixed(2),               get: b => b.snapshot?.usd_inr?.value },
+  gift_nifty: { label: 'GIFT Nifty', color: '#ec4899', fmt: v => v.toLocaleString('en-IN'),        get: b => b.snapshot?.gift_nifty?.value },
+  // FII net flow is signed (buying vs selling), not a price level — a line chart would
+  // misrepresent it as a trend to follow rather than a daily in/out flow. Rendered as a
+  // zero-centered histogram instead, same convention as the existing daily-return chart below.
+  fii: {
+    label: 'FII Flow', isFlow: true,
+    fmt: v => (v >= 0 ? '+₹' : '−₹') + Math.abs(v).toLocaleString('en-IN') + ' Cr',
+    get: b => b.fii?.net_cr,
+  },
 };
 
 function chartTheme() {
@@ -539,23 +552,29 @@ function makeChart(id, height = 180) {
 
 function renderSnapshotChart(metric) {
   const m = METRICS[metric] || METRICS.crude_oil;
+  const t = chartTheme();
   const data = briefings
-    .filter(b => b.snapshot?.[m.key]?.value != null)
-    .map(b => ({ time: b.date, value: b.snapshot[m.key].value }))
+    .filter(b => m.get(b) != null)
+    .map(b => ({ time: b.date, value: m.get(b) }))
     .sort((a, b) => a.time.localeCompare(b.time));
 
   const chart = makeChart('chart-snapshot-trend');
   if (!chart) return;
   if (!data.length) { chart.remove(); delete _charts['chart-snapshot-trend']; return; }
 
-  const s = chart.addLineSeries({
-    color: m.color,
-    lineWidth: 2,
-    crosshairMarkerVisible: true,
-    lastValueVisible: true,
-    priceFormat: { type: 'custom', formatter: m.fmt },
-  });
-  s.setData(data);
+  if (m.isFlow) {
+    const s = chart.addHistogramSeries({ priceFormat: { type: 'custom', formatter: m.fmt } });
+    s.setData(data.map(d => ({ ...d, color: d.value >= 0 ? t.up : t.dn })));
+  } else {
+    const s = chart.addLineSeries({
+      color: m.color,
+      lineWidth: 2,
+      crosshairMarkerVisible: true,
+      lastValueVisible: true,
+      priceFormat: { type: 'custom', formatter: m.fmt },
+    });
+    s.setData(data);
+  }
   chart.timeScale().fitContent();
 }
 
@@ -600,6 +619,7 @@ function renderCharts() {
 
   // ── Sector outcome heatmap (CSS, not LightweightCharts) ───
   renderSectorHeatmap();
+  renderSectorCorrelation();
 }
 
 // Same mapping as the backtest's SYMBOL_SECTOR table in agents/strategy-agent-prompt.md
@@ -811,6 +831,76 @@ function renderSectorHeatmap() {
       </table>
     </div>
     <p class="hm-footnote">Showing the last ${Math.min(RECENT_DAYS, dates.length)} of ${dates.length} trading days. Weight and Track Record both use the full history — Track Record is the raw rate, Weight only moves once that rate clears a statistical bar against the overall average, so a sector can show a real rate here while Weight still reads "—".</p>
+  `;
+}
+
+// A pick-level diversification check: two sectors that get BULLISH/BEARISH calls on the
+// same days, in the same direction, almost every time aren't two bets — they're one bet
+// twice. MIN_PAIR_N is lower than the Track Record panel's MIN_N=8 (pairs co-occurring on
+// the same day are rarer than single-sector calls), but still filters single-digit noise.
+const MIN_PAIR_N = 6;
+
+function computeSectorCorrelations() {
+  const pairs = {};
+  briefings.forEach(b => {
+    const dayCalls = {};
+    (b.sector_outlook || []).forEach(s => {
+      if (s.outlook !== 'BULLISH' && s.outlook !== 'BEARISH') return;  // neutral isn't a directional move to agree/disagree on
+      normalizeSector(s.sector).forEach(sector => { dayCalls[sector] = s.outlook; });
+    });
+    const sectors = Object.keys(dayCalls).sort();
+    for (let i = 0; i < sectors.length; i++) {
+      for (let j = i + 1; j < sectors.length; j++) {
+        const key = `${sectors[i]}|${sectors[j]}`;
+        const p = (pairs[key] ??= { a: sectors[i], b: sectors[j], agree: 0, n: 0 });
+        p.n++;
+        if (dayCalls[sectors[i]] === dayCalls[sectors[j]]) p.agree++;
+      }
+    }
+  });
+
+  const scored = Object.values(pairs)
+    .filter(p => p.n >= MIN_PAIR_N)
+    .map(p => ({ ...p, rate: p.agree / p.n }));
+
+  return {
+    together: [...scored].sort((x, y) => y.rate - x.rate || y.n - x.n).slice(0, 8),
+    diverge:  [...scored].filter(p => p.rate < 0.5).sort((x, y) => x.rate - y.rate || y.n - x.n).slice(0, 5),
+  };
+}
+
+function renderSectorCorrelation() {
+  const el = document.getElementById('sector-correlation');
+  if (!el) return;
+
+  const { together, diverge } = computeSectorCorrelations();
+  if (!together.length) {
+    el.innerHTML = '<div class="empty">Not enough overlapping sector calls yet to measure correlation.</div>';
+    return;
+  }
+
+  const row = p => `
+    <tr>
+      <td class="corr-pair">${p.a} <span class="corr-x">×</span> ${p.b}</td>
+      <td class="corr-rate ${p.rate >= 0.75 ? 'hm-track-good' : p.rate < 0.5 ? 'hm-track-poor' : 'hm-track-mid'}">
+        ${Math.round(p.rate * 100)}% <span class="hm-track-n">n=${p.n}</span>
+      </td>
+    </tr>`;
+
+  el.innerHTML = `
+    <div class="corr-cols">
+      <div class="corr-col">
+        <div class="corr-col-label">Move together — same bet, not diversification</div>
+        <table class="corr-table"><tbody>${together.map(row).join('')}</tbody></table>
+      </div>
+      ${diverge.length ? `
+        <div class="corr-col">
+          <div class="corr-col-label">Often diverge — a real hedge pair</div>
+          <table class="corr-table"><tbody>${diverge.map(row).join('')}</tbody></table>
+        </div>
+      ` : ''}
+    </div>
+    <p class="hm-footnote">Based on how often each sector pair's BULLISH/BEARISH calls agree on the same trading day, across full history (min ${MIN_PAIR_N} overlapping days). If two of today's picks come from a pair at the top of "move together," sizing both full isn't two positions — it's one position twice.</p>
   `;
 }
 
