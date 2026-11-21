@@ -128,3 +128,30 @@ Observations (not acted on):
 - Nothing was flagged BOOST or DEPRIORITIZE, so no MISS_EXAMPLE lines were printed and no catalyst-level pattern review was possible this week.
 
 Decision: reviewed, no sector cleared the evidence bar. All 17 reported sectors held at 1.0x.
+
+## 2026-11-21
+
+## Weekly review — 2026-11-21
+
+**Backtest: N=167 scored picks, overall direction accuracy 79/167 = 47.3%**
+
+- Upstream Oil: 43% (15/35), CI [28%,59%] — overlaps baseline. No change.
+- Airlines: 58% (14/24), CI [39%,76%] — overlaps baseline. No change.
+- Paints: 48% (10/21), CI [28%,68%] — overlaps baseline. No change.
+- IT Services: 30% (6/20), CI [15%,52%] — overlaps baseline (upper bound 52% vs 47% baseline). No change.
+  Weakest of the larger buckets; worth watching — a few more misses would push the CI fully below baseline.
+- Tyres: 43% (6/14), CI [21%,67%] — overlaps baseline. No change.
+- Gold-linked: 64% (9/14), CI [39%,84%] — overlaps baseline. No change.
+- Private Banks: 60% (6/10), CI [31%,83%] — overlaps baseline. No change.
+- OMC: n=6 — not enough data yet. No change.
+- Metals: n=5 — not enough data yet. No change.
+- Pharma: n=5 — not enough data yet. No change.
+- FMCG: n=4 — not enough data yet. No change.
+- Auto OEM: n=3 — not enough data yet. No change.
+- Defense: n=2 — not enough data yet. No change.
+- Large Cap/Broad Market, Infra, Fertilizer, Logistics: n=1 each — not enough data yet. No change.
+
+Observation: overall direction accuracy (47.3%) is below a coin flip. That is a system-level
+signal, not a sector-level one, and this review's sector weights cannot address it.
+
+Decision: reviewed, no sector cleared the evidence bar. All weights held at 1.0x this week.
