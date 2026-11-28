@@ -155,3 +155,33 @@ Observation: overall direction accuracy (47.3%) is below a coin flip. That is a 
 signal, not a sector-level one, and this review's sector weights cannot address it.
 
 Decision: reviewed, no sector cleared the evidence bar. All weights held at 1.0x this week.
+
+## 2026-11-28
+
+## Weekly strategy review — 2026-11-28
+
+**Backtest: N=177 scored picks, overall direction accuracy 84/177 = 47.5%**
+
+- Upstream Oil: 44% (16/36), CI [30%,60%] — overlaps baseline. No change.
+- Airlines: 58% (15/26), CI [39%,74%] — overlaps baseline. No change.
+- Paints: 48% (11/23), CI [29%,67%] — overlaps baseline. No change.
+- IT Services: 30% (6/20), CI [15%,52%] — overlaps baseline (upper bound 52% > 47.5%). No change.
+  Weakest sector with enough samples; worth watching. If it keeps missing at this rate, a few more
+  samples would push the CI fully below baseline. No miss examples were printed (not flagged), so no cause is claimed.
+- Gold-linked: 56% (9/16), CI [33%,77%] — overlaps baseline. No change.
+- Tyres: 43% (6/14), CI [21%,67%] — overlaps baseline. No change.
+- Private Banks: 64% (7/11), CI [35%,85%] — overlaps baseline. No change.
+- OMC: n=6 (50%) — not enough data yet. No change.
+- FMCG: n=6 (67%) — not enough data yet. No change.
+- Metals: n=5 (60%) — not enough data yet. No change.
+- Pharma: n=5 (40%) — not enough data yet. No change.
+- Auto OEM: n=3 (33%) — not enough data yet. No change.
+- Defense: n=2 (0%) — not enough data yet. No change.
+- Large Cap/Broad Market, Infra, Fertilizer, Logistics: n=1 each — not enough data yet. No change.
+
+Observation: overall direction accuracy (47.5%) is below a 50% coin flip. With n=177 the 95% CI is
+roughly [40%,55%], so this is not evidence the system is worse than chance, but there is also no
+evidence yet of any directional edge overall. Sector reweighting only redistributes picks between
+sectors relative to this baseline; it can't create an edge.
+
+Decision: no sector cleared the evidence bar this week. All weights held at 1.0x.
